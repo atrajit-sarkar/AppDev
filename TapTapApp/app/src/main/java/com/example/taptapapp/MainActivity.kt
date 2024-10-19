@@ -56,7 +56,7 @@ fun Myapp() {
     // State variables for the app
     var moneyCounter by remember { mutableStateOf(0) }
     var money by remember { mutableStateOf(100) }
-    var reset by remember { mutableStateOf(false) }
+//    var reset by remember { mutableStateOf(false) }
     //Another way of creating remember
     var reset1 = remember {
         mutableStateOf(false)
