@@ -68,7 +68,8 @@ fun Myapp() {
     ) {
         // Box composable is defined to align contents.
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(all = 10.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -104,7 +105,6 @@ fun Myapp() {
                 // Circle tap button
                 CreateCircle(
                     moneyCounter = moneyCounter,
-                    money = money,
                     onTapClick = {
                         moneyCounter += 1
                         money += 10
@@ -130,7 +130,6 @@ fun Myapp() {
                         fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold
                     ),
-//                    textAlign = TextAlign.Center
                 )
 
             }
@@ -159,7 +158,7 @@ fun CreateRectangle(onResetClick: () -> Unit) {
 }
 
 @Composable
-fun CreateCircle(moneyCounter: Int, money: Int, onTapClick: () -> Unit) {
+fun CreateCircle(moneyCounter: Int, onTapClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(3.dp)
