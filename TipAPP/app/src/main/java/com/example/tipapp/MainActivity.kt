@@ -274,7 +274,7 @@ fun BillForm(
                         totalPerPersonState.doubleValue = calculateTotalPerPerson(
                             totalBill = totalBillState.value.toDouble(),
                             splitBy = noOfPeople.intValue,
-                            tipPercentage = percentage
+                            tipPercentage = ((newVal) * 100).toInt()
                         )
                         slidingFinished.value=false
 
