@@ -1,5 +1,6 @@
 package com.example.tipapp.widgets
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-val IconbuttonSizeModifier = Modifier.size(40.dp)
+var onclickSize =40.dp
+val IconbuttonSizeModifier = Modifier.size(onclickSize)
+
 
 @Composable
 fun RoundIconButton(
@@ -32,7 +37,10 @@ fun RoundIconButton(
     Card(
         modifier = modifier
             .padding(all = 4.dp)
-            .clickable { onClick.invoke() }
+            .clickable {
+                onClick.invoke()
+                onclickSize=55.dp
+            }
             .then(IconbuttonSizeModifier),
         shape = CircleShape,
         colors = CardDefaults.cardColors(backgroundColor),
@@ -40,7 +48,7 @@ fun RoundIconButton(
     ) {
         Box(
             contentAlignment = Alignment.Center, // Centers content inside the Box
-            modifier = Modifier.fillMaxSize() // Match the Card size
+            modifier = modifier.size(onclickSize) // Match the Card size
         ) {
             Icon(
                 imageVector = imageVector,

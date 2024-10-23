@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tipapp.components.InputField
+import com.example.tipapp.mainContents.BillForm
 import com.example.tipapp.ui.theme.TipAPPTheme
 import com.example.tipapp.utils.calculateTotalPerPerson
 import com.example.tipapp.utils.calculateTotalTip
@@ -61,9 +62,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Myapp {
-                Body()
-            }
+            Myapp()
 
         }
     }
@@ -71,253 +70,27 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Myapp(content: @Composable () -> Unit) {
+fun Myapp() {
     TipAPPTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.fillMaxHeight()
         ) {
-            content()
-        }
-    }
-}
+            Column(
+                modifier = Modifier
+                    .padding(25.dp)
+                    .padding(top = 30.dp)
+            ) {
 
-//@Preview
-@Composable
-fun TopHeader(totalPerPerson: Double = 134.0) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(169.dp)
-            .clip(shape = CircleShape.copy(all = CornerSize(12.dp))),
-        shadowElevation = 50.dp,
-        tonalElevation = 20.dp,
-        color = Color(0xFFE9D7F7)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            val total = "%.2f".format(totalPerPerson)
-            Text(
-                "Total Per Person",
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Text(
-                "$$total",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
-    }
-}
+                BillForm()
 
-@Preview
-@Composable
-fun MainContent() {
-
-    BillForm() {
-
-    }
-
-}
-
-
-@SuppressLint("DefaultLocale")
-@Composable
-fun BillForm(
-    modifier: Modifier = Modifier,
-    onValChange: (String) -> Unit = {}
-) {
-    val totalBillState = remember {
-        mutableStateOf("")
-    }
-
-    val validState = remember(totalBillState.value) {
-        totalBillState.value.trim().isNotEmpty()
-    }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val noOfPeople = remember {
-        mutableIntStateOf(1)
-    }
-
-    val sliderPositionState = remember {
-        mutableFloatStateOf(0f)
-    }
-
-    val percentage = ((sliderPositionState.floatValue) * 100).toInt()
-
-    val slidingFinished = remember {
-        mutableStateOf(false)
-    }
-    val range = IntRange(start = 1, endInclusive = 100)
-
-    val tipAmountState = remember {
-        mutableDoubleStateOf(0.0)
-    }
-    val totalPerPersonState = remember {
-        mutableDoubleStateOf(0.0)
-    }
-
-    TopHeader(totalPerPerson = totalPerPersonState.doubleValue)
-    Spacer(modifier = Modifier.height(10.dp))
-
-    Surface(
-        modifier = Modifier
-            .padding(2.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(corner = CornerSize(8.dp)),
-        border = BorderStroke(width = 2.dp, color = Color.LightGray)
-    ) {
-        Column(
-            modifier = Modifier.padding(6.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        ) {
-            InputField(
-                valueState = totalBillState,
-                labelId = "Enter Bill",
-                enabled = true,
-                isSingleLine = true,
-                onAction = KeyboardActions {
-                    if (!validState) return@KeyboardActions
-                    onValChange(totalBillState.value.trim())
-
-                    keyboardController?.hide()
-
-                }
-            )
-            if (validState) {
-                Row(modifier = Modifier.padding(3.dp), horizontalArrangement = Arrangement.Start) {
-                    Text(
-                        "Split",
-                        modifier = Modifier.align(
-                            alignment = Alignment.CenterVertically
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(90.dp))
-                    Row(
-                        modifier = Modifier.padding(horizontal = 3.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        RoundIconButton(
-                            imageVector = Icons.Default.Remove,
-                            onClick = {
-                                if (noOfPeople.intValue > 1) {
-
-                                    noOfPeople.intValue--
-                                }
-                                totalPerPersonState.doubleValue = calculateTotalPerPerson(
-                                    totalBill = totalBillState.value.toDouble(),
-                                    splitBy = noOfPeople.intValue,
-                                    tipPercentage = percentage
-                                )
-                            }
-                        )
-                        Text(
-                            text = "${noOfPeople.intValue}",
-                            modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(start = 9.dp, end = 9.dp)
-                        )
-                        RoundIconButton(imageVector = Icons.Default.Add,
-                            onClick = {
-                                if (noOfPeople.intValue < range.last) {
-
-                                    noOfPeople.intValue++
-                                }
-                                totalPerPersonState.doubleValue = calculateTotalPerPerson(
-                                    totalBill = totalBillState.value.toDouble(),
-                                    splitBy = noOfPeople.intValue,
-                                    tipPercentage = percentage
-                                )
-                            })
-                    }
-
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-                //Tip Row
-                Row(modifier = Modifier.padding(3.dp), horizontalArrangement = Arrangement.Start) {
-                    Text(
-                        text = "Tip",
-                        modifier = Modifier.align(alignment = Alignment.CenterVertically)
-                    )
-
-                    Spacer(modifier = Modifier.width(130.dp))
-
-                    Text(
-                        text = "$ ${tipAmountState.doubleValue}",
-                        modifier = Modifier.align(alignment = Alignment.CenterVertically)
-                    )
-                    Spacer(modifier = Modifier.width(200.dp))
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "$percentage %")
-
-                    //Slider
-                    Slider(value = sliderPositionState.floatValue, onValueChange = { newVal ->
-                        sliderPositionState.floatValue = newVal
-                        tipAmountState.doubleValue = calculateTotalTip(
-                            totalBill = totalBillState.value.toDouble(),
-                            percentage = ((newVal) * 100).toInt()
-                        )
-
-                        totalPerPersonState.doubleValue = calculateTotalPerPerson(
-                            totalBill = totalBillState.value.toDouble(),
-                            splitBy = noOfPeople.intValue,
-                            tipPercentage = ((newVal) * 100).toInt()
-                        )
-                        slidingFinished.value=false
-
-                    },
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                        steps = 5,
-                        onValueChangeFinished = {
-                            slidingFinished.value = true
-                        })
-                    if (slidingFinished.value) {
-                        Text(text = "You choose $percentage %.Great Choice!")
-                    }
-                }
-
-            } else {
-                Box() {}
             }
-
         }
-    }
-
-}
-
-
-// This the BodyContent
-@Composable
-fun Body() {
-    Column(
-        modifier = Modifier
-            .padding(25.dp)
-            .padding(top = 30.dp)
-    ) {
-
-        MainContent()
-
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    Myapp {
-        Body()
-
-    }
+    Myapp()
 }
