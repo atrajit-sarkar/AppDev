@@ -25,12 +25,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 @Composable
 fun Button(
     modifier: Modifier = Modifier,
-    text: String?=null,
+    text: String? = null,
     onClick: () -> Unit,
     tint: Color = Color.White.copy(alpha = 0.8f),
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     elevation: Dp = 4.dp,
-    icon:@Composable()() -> Unit={}
+    icon: @Composable() () -> Unit = {}
 ) {
     var buttonSize by remember { mutableStateOf(69.dp) }  // Initial size of the button
     val smallSize = 65.dp
@@ -68,7 +68,7 @@ fun Button(
                     fontSize = 26.sp,
                     modifier = Modifier.padding(4.dp)
                 )
-            }else{
+            } else {
                 icon()
             }
         }
