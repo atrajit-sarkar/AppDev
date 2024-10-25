@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.swing)
+    implementation(libs.coil.kt.coil.compose)
 
 
 }

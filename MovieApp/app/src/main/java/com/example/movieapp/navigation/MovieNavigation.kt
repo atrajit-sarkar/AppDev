@@ -23,11 +23,13 @@ fun MovieNavigation() {
 //        www.google.com/details-screen/id=34
         composable(
             MovieScreens.DetailsScreen.name + "/{movie}",
-            arguments = listOf(navArgument(name = "movie"){type=NavType.StringType})
-        ) {
-            backStackEntry->
+            arguments = listOf(navArgument(name = "movie") { type = NavType.StringType })
+        ) { backStackEntry ->
 
-            DetailsScreen(navController = navController,backStackEntry.arguments?.getString("movie"))
+            DetailsScreen(
+                navController = navController,
+                backStackEntry.arguments?.getString("movie")
+            )
         }
     }
 }
