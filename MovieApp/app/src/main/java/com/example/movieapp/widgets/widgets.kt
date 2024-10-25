@@ -71,18 +71,9 @@ fun MovieRow(
                 shadowElevation = 5.dp
             ) {
 //                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "Movie Image")
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(movie.poster)
-                            .crossfade(true)
-                            .build()
-                    ),
+                AsyncImage(
+                    model = movie.poster,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .fillMaxSize()
                 )
 
             }
