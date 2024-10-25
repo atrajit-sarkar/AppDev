@@ -17,8 +17,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movieapp.MovieRow
+import com.example.movieapp.model.Movie
+import com.example.movieapp.model.getMovies
 import com.example.movieapp.navigation.MovieScreens
+import com.example.movieapp.widgets.MovieRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,17 +47,7 @@ fun HomeScreen(navController: NavController) {
 fun MainContent(
     navController: NavController,
     innerPadding: PaddingValues,
-    movieList: List<String> = listOf(
-
-        "Avatar",
-        "Fifty Shades Of Grey",
-        "Chichore",
-        "Harry Poter",
-        "3 Idiots",
-        "Abar Proloy",
-        "HouseFull",
-        "Mirzapur"
-    )
+    movieList: List<Movie> = getMovies()
 ) {
     Column(modifier = Modifier.padding(innerPadding)) {
         LazyColumn {
