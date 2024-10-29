@@ -71,5 +71,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.swing)
     implementation(libs.coil.kt.coil.compose)
 
-
 }

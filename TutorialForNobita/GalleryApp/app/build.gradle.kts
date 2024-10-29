@@ -66,4 +66,28 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation (libs.androidx.navigation.compose)
+    implementation(libs.coil.compose)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.logging.interceptor)
+    implementation (libs.coil.kt.coil.compose)
+    // Jetpack Compose
+    implementation(libs.ui)
+    implementation(libs.androidx.material)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Retrofit for network calls
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Coil for image loading
+    implementation(libs.coil.kt.coil.compose)
+
+    // ExoPlayer for video playback
+    implementation(libs.exoplayer)
+
+    // Coroutine for async tasks
+    implementation (libs.kotlinx.coroutines.android)
 }
