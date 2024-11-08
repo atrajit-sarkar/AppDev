@@ -52,10 +52,10 @@ fun NoteScreen(
     onAddNote: (Note) -> Unit,
     onRemoveNote: (Note) -> Unit
 ) {
-    var title = remember {
+    val title = remember {
         mutableStateOf("")
     }
-    var description = remember {
+    val description = remember {
         mutableStateOf("")
     }
     val context = LocalContext.current

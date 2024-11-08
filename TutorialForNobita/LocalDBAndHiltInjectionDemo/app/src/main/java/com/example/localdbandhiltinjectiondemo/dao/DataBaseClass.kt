@@ -1,4 +1,9 @@
 package com.example.localdbandhiltinjectiondemo.dao
 
-class DataBaseClass {
+import androidx.room.Database
+import androidx.room.RoomDatabase
+
+@Database(entities = [User::class], version = 1, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun userDao(): UserDao
 }

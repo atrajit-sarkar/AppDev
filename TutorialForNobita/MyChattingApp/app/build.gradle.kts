@@ -1,11 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "com.example.mychattingapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.mychattingapp"
@@ -59,6 +62,15 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation.android)
+    implementation(libs.androidx.animation.core.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.benchmark.macro)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -71,5 +83,17 @@ dependencies {
 
     implementation (libs.material3) // Use the latest version
     implementation (libs.ui) // Check for the latest Compose UI version
+    implementation (libs.androidx.navigation.compose)
+    implementation (libs.accompanist.navigation.animation)
+    kapt(libs.androidx.room.compiler)
 
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
+
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }
