@@ -1,4 +1,4 @@
-package com.example.mychattingapp.widgets
+package com.example.mychattingapp.widgets.ChatScreenWidgets
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -28,8 +28,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
+import com.example.mychattingapp.widgets.Send_MicButtonTransition
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIcons
 

@@ -1,4 +1,4 @@
-package com.example.mychattingapp.widgets
+package com.example.mychattingapp.widgets.ChatScreenWidgets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
