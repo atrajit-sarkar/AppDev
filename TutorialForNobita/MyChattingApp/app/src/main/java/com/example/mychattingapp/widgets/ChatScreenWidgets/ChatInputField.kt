@@ -29,7 +29,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
-import com.example.mychattingapp.widgets.Send_MicButtonTransition
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIcons
 

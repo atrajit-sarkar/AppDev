@@ -1,5 +1,6 @@
 package com.example.mychattingapp.NavHost
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -10,7 +11,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.Screens.ChatScreen
 import com.example.mychattingapp.Screens.HomeScreen
+import com.example.mychattingapp.Screens.SettingsScreen
 
+const val durationMillis = 120 // Slightly increased duration for smoother transitions
 @Composable
 fun Navigation(viewModel: ChatAppViewModel) {
     val navController = rememberNavController()
@@ -19,26 +22,38 @@ fun Navigation(viewModel: ChatAppViewModel) {
         startDestination = "home_screen",
         enterTransition = {
             slideInHorizontally(
-                initialOffsetX = { 1000 }, // Slide in from the right
-                animationSpec = tween(69)
+                initialOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    easing = FastOutSlowInEasing
+                )
             )
         },
         exitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { -1000 }, // Slide out to the left
-                animationSpec = tween(69)
+                targetOffsetX = { fullWidth -> -fullWidth },
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    easing = FastOutSlowInEasing
+                )
             )
         },
         popEnterTransition = {
             slideInHorizontally(
-                initialOffsetX = { -1000 }, // Slide in from the left when popping back
-                animationSpec = tween(69)
+                initialOffsetX = { fullWidth -> -fullWidth },
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    easing = FastOutSlowInEasing
+                )
             )
         },
         popExitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { 1000 }, // Slide out to the right when popping back
-                animationSpec = tween(69)
+                targetOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    easing = FastOutSlowInEasing
+                )
             )
         }
     ) {
@@ -47,5 +62,9 @@ fun Navigation(viewModel: ChatAppViewModel) {
             it.arguments?.getString("chatId")
                 ?.let { it1 -> ChatScreen(navController = navController, chatId = it1.toInt(), viewModel = viewModel) }
         }
+        composable("settings_screen"){
+            SettingsScreen(navController = navController)
+        }
+
     }
 }

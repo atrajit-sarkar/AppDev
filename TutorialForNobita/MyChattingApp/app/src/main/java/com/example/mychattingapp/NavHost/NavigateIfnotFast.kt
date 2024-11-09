@@ -1,14 +1,20 @@
 package com.example.mychattingapp.NavHost
 
-import androidx.navigation.NavController
+import android.os.Handler
+import android.os.Looper
 
 private val debounceTime = 300L
+private val delayTime = 200L // Delay navigation by 500 milliseconds
 private var lastClickTime = 0L
 
-fun navigateIfNotFast(navigation:()->Unit={}) {
+private val handler = Handler(Looper.getMainLooper())
+
+fun navigateIfNotFast(navigation: () -> Unit = {}) {
     val currentTime = System.currentTimeMillis()
     if (currentTime - lastClickTime > debounceTime) {
-        navigation()
         lastClickTime = currentTime
+        handler.postDelayed({
+            navigation()
+        }, delayTime)
     }
 }
