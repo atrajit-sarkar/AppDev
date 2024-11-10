@@ -20,12 +20,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
+import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.NavHost.navigateIfNotFast
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIcons
@@ -35,13 +40,24 @@ import com.guru.fontawesomecomposelib.FaIcons
 fun ChatScreenTopBar(
     navController: NavController,
     contactName: String,
-    lastSeen: String
+    lastSeen: String,
+    viewModel: ChatAppViewModel,
+    user: User
 ) {
+    val expanded = remember {
+        mutableStateOf(false)
+    }
+    val subexpanded = remember {
+        mutableStateOf(false)
+    }
+    val clearChatDialog = remember {
+        mutableStateOf(false)
+    }
     TopAppBar(
         navigationIcon = {
             // Back button
             IconButton(onClick = {
-                navigateIfNotFast(){
+                navigateIfNotFast() {
                     navController.popBackStack()
 
                 }
@@ -103,12 +119,22 @@ fun ChatScreenTopBar(
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        // DropDownMenu for Controlling Chats......
+                        expanded.value = !expanded.value
+
+                    }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More Options",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
+                        DropDownMenuChatScreen(expanded, navController, subexpanded = subexpanded)
+                        SubDropDownMenuChatScreen(subexpanded, clearChatDialog = clearChatDialog)
+                        if (clearChatDialog.value) {
+
+                            ClearChatDialogue(showDialog = clearChatDialog, viewModel, user)
+                        }
                     }
                 }
             }
@@ -116,4 +142,6 @@ fun ChatScreenTopBar(
         colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary),
         modifier = Modifier.fillMaxWidth()
     )
+
 }
+

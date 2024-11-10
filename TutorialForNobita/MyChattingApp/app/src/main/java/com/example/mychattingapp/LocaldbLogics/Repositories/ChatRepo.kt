@@ -9,4 +9,5 @@ class ChatRepository @Inject constructor(private val messageDao: MessageDao) {
     suspend fun insertMessage(message: Message) = messageDao.insertMessage(message)
     suspend fun deleteMessage(message: Message)=messageDao.deleteMessages(message)
     suspend fun deleteAllMessage()=messageDao.deleteAllMessages()
+    suspend fun updateMessage(message: Message)=messageDao.updateMessage(message)
 }

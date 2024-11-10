@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class User(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val userName:String,
-    val messageSentTime:String,
-    val recentMessage:String,
-    val messageCounter:String
+    var userName:String,
+    var messageSentTime:String,
+    var recentMessage:String,
+    var messageCounter:String
 )

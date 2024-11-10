@@ -21,7 +21,7 @@ data class Message(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val chatId: Int,  // Foreign key linking to Chat entity
-    val sender: String,
-    val text: String,
-    val timestamp: String
+    var sender: String,
+    var text: String,
+    var timestamp: String
 )

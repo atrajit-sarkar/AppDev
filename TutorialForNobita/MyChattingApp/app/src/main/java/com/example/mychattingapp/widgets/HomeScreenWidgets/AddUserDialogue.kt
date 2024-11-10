@@ -60,9 +60,9 @@ fun AddUserUI(
                         viewModel.addUser(
                             user = User(
                                 userName = textFieldValue.value,
-                                messageSentTime = "12:02",
-                                messageCounter = "1",
-                                recentMessage = "Hi"
+                                messageSentTime = "",
+                                messageCounter = "",
+                                recentMessage = ""
 
                             )
                         )

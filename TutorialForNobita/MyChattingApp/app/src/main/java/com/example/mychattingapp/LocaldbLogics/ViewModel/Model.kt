@@ -35,11 +35,19 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
+    fun updateMessage(message: Message){
+        viewModelScope.launch {
+            chatrepository.updateMessage(message)
+        }
+    }
+
     fun deleteAllMessage(){
         viewModelScope.launch {
             chatrepository.deleteAllMessage()
         }
     }
+
+
 
 
     //Userrepo functions..............
@@ -53,6 +61,13 @@ class ChatAppViewModel @Inject constructor(
             userRepository.deleteUser(user)
         }
     }
+
+    fun updateUser(user: User){
+        viewModelScope.launch {
+            userRepository.updateUser(user)
+        }
+    }
+
     fun deleteAllUser(){
         viewModelScope.launch {
             userRepository.deleteAllUser()

@@ -10,10 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.Screens.ChatScreen
+import com.example.mychattingapp.Screens.Contacts
 import com.example.mychattingapp.Screens.HomeScreen
 import com.example.mychattingapp.Screens.SettingsScreen
 
-const val durationMillis = 120 // Slightly increased duration for smoother transitions
+const val durationMillis = 220 // Slightly increased duration for smoother transitions
 @Composable
 fun Navigation(viewModel: ChatAppViewModel) {
     val navController = rememberNavController()
@@ -64,6 +65,9 @@ fun Navigation(viewModel: ChatAppViewModel) {
         }
         composable("settings_screen"){
             SettingsScreen(navController = navController)
+        }
+        composable("allcontact_screen"){
+            Contacts(navController = navController)
         }
 
     }

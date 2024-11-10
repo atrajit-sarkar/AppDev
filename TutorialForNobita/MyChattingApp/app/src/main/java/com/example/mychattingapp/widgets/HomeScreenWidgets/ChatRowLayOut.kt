@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -46,7 +47,7 @@ fun ChatRow(
     recentMessage: String,
     messageSentTime: String,
     onClick: () -> Unit = {},
-    onLongPress:()->Unit={},
+    onLongPress: () -> Unit = {},
     messageCounterEnabled: Boolean = true,
     messageCounterNumber: String = "1",
 ) {
@@ -57,11 +58,11 @@ fun ChatRow(
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
             .height(69.dp)
-            .combinedClickable (
+            .combinedClickable(
                 onLongClick = {
                     onLongPress()
                 }
-            ){
+            ) {
                 onClick()
             }
     ) {
@@ -79,27 +80,37 @@ fun ChatRow(
         ) {
             Column(
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(79.dp)
             ) {
                 Text(
                     text = contactName,
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
                 )
 
                 Row(horizontalArrangement = Arrangement.SpaceAround) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.LightGray
-                    )
-                    Text(
-                        text = recentMessage,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.LightGray
-                    )
+                    if (recentMessage != "") {
+
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.LightGray
+                        )
+                        Text(
+                            text = recentMessage,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.LightGray,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
 
@@ -108,13 +119,13 @@ fun ChatRow(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(end = 8.dp)
             ) {
-                Text(
-                    text = messageSentTime,
-                    color = Color.Green,
-                    fontSize = 12.sp
-                )
 
-                if (messageCounterEnabled) {
+                if (recentMessage != "") {
+                    Text(
+                        text = messageSentTime,
+                        color = Color.Green,
+                        fontSize = 12.sp
+                    )
                     Card(
                         shape = CircleShape,
                         colors = CardDefaults.cardColors(Color.Green),

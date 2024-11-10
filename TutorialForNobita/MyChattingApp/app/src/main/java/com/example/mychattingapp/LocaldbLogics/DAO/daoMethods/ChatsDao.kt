@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import kotlinx.coroutines.flow.Flow
 
@@ -21,4 +22,7 @@ interface MessageDao {
 
     @Query("DELETE FROM messages")
     suspend fun deleteAllMessages()
+
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    suspend fun updateMessage(message: Message)
 }

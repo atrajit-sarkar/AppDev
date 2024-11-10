@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
 import kotlinx.coroutines.flow.Flow
@@ -22,4 +23,7 @@ interface UserDao {
 
     @Query("DELETE FROM user")
     suspend fun deleteAllUsers()
+
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    suspend fun updateUser(user: User)
 }
