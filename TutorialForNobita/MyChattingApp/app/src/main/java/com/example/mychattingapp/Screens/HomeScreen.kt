@@ -127,7 +127,7 @@ fun HomeScreen(
                             tint = Color(0xFF47d2ea)
                         )
                     }
-                    Spacer(modifier=Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     FloatingActionButton(
                         onClick = {
                             navigateIfNotFast {
@@ -139,7 +139,7 @@ fun HomeScreen(
                         },
                         containerColor = Color.Green,
 
-                    ) {
+                        ) {
                         FaIcon(
                             faIcon = FaIcons.SnapchatGhost
                         )
@@ -223,17 +223,17 @@ fun HomeScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 items(userList) { contact ->
-                    if (userRecentMessage(user = contact, messageList) != null) {
+                    val messages by viewModel.getMessageById(contact.id).observeAsState(emptyList())
+                    if (messages.isNotEmpty()) {
 
-                        contact.recentMessage =
-                            userRecentMessage(user = contact, messageList)?.text.toString()
-                        contact.messageSentTime =
-                            userRecentMessage(user = contact, messageList)?.timestamp.toString()
+                        contact.recentMessage = messages.last().text
+                        contact.messageSentTime = messages.last().timestamp
                     } else {
                         contact.recentMessage = ""
                         contact.messageSentTime = ""
                     }
                     viewModel.updateUser(user = contact)
+
                     ChatRow(
                         contactName = contact.userName,
                         recentMessage = contact.recentMessage,
@@ -269,20 +269,5 @@ fun HomeScreen(
     }
 }
 
-@Composable
-fun userRecentMessage(
-    user: User,
-    messageList: List<Message>
-): Message? {
-    val messages = mutableListOf<Message>()
-    for (message in messageList) {
-        if (message.chatId == user.id) {
-            messages.add(message)
-        }
-    }
-
-    return messages.lastOrNull()
-
-}
 
 

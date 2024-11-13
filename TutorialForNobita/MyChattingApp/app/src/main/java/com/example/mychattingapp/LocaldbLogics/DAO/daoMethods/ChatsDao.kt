@@ -25,4 +25,7 @@ interface MessageDao {
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     suspend fun updateMessage(message: Message)
+
+    @Query("SELECT * FROM messages WHERE chatId = :chatId")
+    fun getMessageById(chatId: Int): Flow<List<Message>>
 }

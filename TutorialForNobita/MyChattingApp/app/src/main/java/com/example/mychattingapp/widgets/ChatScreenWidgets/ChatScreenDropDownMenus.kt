@@ -179,7 +179,7 @@ fun DropDownMenuChatScreen(
 @Composable
 fun SubDropDownMenuChatScreen(
     subexpanded: MutableState<Boolean>,
-    clearChatDialog:MutableState<Boolean>
+    clearChatDialog: MutableState<Boolean>
 ) {
 
     DropdownMenu(
@@ -224,7 +224,7 @@ fun SubDropDownMenuChatScreen(
         DropdownMenuItem(
             onClick = { // Clear Chat
                 clearChatDialog.value = true
-                subexpanded.value=false
+                subexpanded.value = false
 
 
             },
@@ -273,7 +273,7 @@ fun ClearChatDialogue(
     viewModel: ChatAppViewModel,
     user: User
 ) {
-    val messageList by viewModel.allChats.observeAsState(emptyList())
+    val messageList by viewModel.getMessageById(user.id).observeAsState(emptyList())
     Dialog(onDismissRequest = { showDialog.value = false }) {
         Surface(
             modifier = Modifier.padding(16.dp),
@@ -306,10 +306,10 @@ fun ClearChatDialogue(
                     Spacer(modifier = Modifier.width(50.dp))
                     Button(
                         onClick = {
-                            for (message in messageList){
-                                if (message.chatId==user.id){
-                                    viewModel.deleteMessage(message)
-                                }
+                            for (message in messageList) {
+
+                                viewModel.deleteMessage(message)
+
                             }
 
                             showDialog.value = false

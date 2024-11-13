@@ -31,14 +31,9 @@ fun DeleteUserDialogue(
     viewModel: ChatAppViewModel,
     user: User
 ) {
-    val invokeDeleteMessage = remember {
-        mutableStateOf(false)
-    }
 
-    if (invokeDeleteMessage.value){
-        DeleteAllChatsToAUser(viewModel, user)
-        invokeDeleteMessage.value=false
-    }
+    val messageList by viewModel.getMessageById(user.id).observeAsState(emptyList())
+
     Dialog(onDismissRequest = { showDialog.value = false }) {
         Surface(
             modifier = Modifier.padding(16.dp),
@@ -61,7 +56,11 @@ fun DeleteUserDialogue(
                 Button(
                     onClick = {
                         viewModel.deleteUser(user = user)
-                        invokeDeleteMessage.value=true
+                        for (message in messageList) {
+
+                            viewModel.deleteMessage(message)
+
+                        }
 
                         showDialog.value = false
 
@@ -80,19 +79,4 @@ fun DeleteUserDialogue(
             }
         }
     }
-}
-
-@Composable
-fun DeleteAllChatsToAUser(
-    viewModel: ChatAppViewModel,
-    user: User
-) {
-    val messageList by viewModel.allChats.observeAsState(emptyList())
-
-    for (message in messageList) {
-        if (message.chatId == user.id) {
-            viewModel.deleteMessage(message = message)
-        }
-    }
-
 }

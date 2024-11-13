@@ -43,21 +43,12 @@ fun ChatScreen(
 ) {
     val textFiledValue = remember { mutableStateOf("") }
 
-    val messageList by viewModel.allChats.observeAsState(emptyList())
-    val userList by viewModel.allUsers.observeAsState(emptyList())
+    val messageList by viewModel.getMessageById(chatId).observeAsState(emptyList())
+    val currentUser by viewModel.getUserById(chatId).observeAsState(emptyList())
 
     val sendIcon = remember { mutableStateOf(false) }
     val MicIcon = remember { mutableStateOf(false) }
-    var contactName: String = ""
-    var currentUser: User? = userList.firstOrNull()
 
-    for (user in userList) {
-        if (user.id == chatId) {
-            contactName = user.userName
-            currentUser = user
-            break
-        }
-    }
 
     MyChattingAppTheme {
         Scaffold(
@@ -66,15 +57,18 @@ fun ChatScreen(
                 .windowInsetsPadding(WindowInsets.ime)
                 .background(MaterialTheme.colorScheme.background), // Ensure dark background
             topBar = {
-                if (currentUser != null) {
+
+                if (currentUser.isNotEmpty()) {
+
                     ChatScreenTopBar(
                         navController,
-                        contactName,
+                        currentUser[0].userName,
                         lastSeen,
                         viewModel,
-                        user = currentUser
+                        user = currentUser[0]
                     )
                 }
+
             },
             bottomBar = {
                 ChatInputField(textFiledValue, sendIcon, MicIcon, viewModel, chatId = chatId)
@@ -96,20 +90,19 @@ fun ChatScreen(
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(messageList) { message ->
-                        if (message.chatId == chatId) {
-                            MessageItem(
-                                message = message,
-                                viewModel = viewModel,
-                                isOwnMessage = true // Dynamically set
-                            )
-                        }
+                        MessageItem(
+                            message = message,
+                            viewModel = viewModel,
+                            isOwnMessage = true // Dynamically set
+                        )
+
+
                     }
                 }
             }
         }
     }
 }
-
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -207,9 +200,4 @@ private fun ShowDeleteMessageDialogue(
     }
 }
 
-//@Preview
-//@Composable
-//fun PreviewChatScreen() {
-//    ChatScreen()
-//}
 

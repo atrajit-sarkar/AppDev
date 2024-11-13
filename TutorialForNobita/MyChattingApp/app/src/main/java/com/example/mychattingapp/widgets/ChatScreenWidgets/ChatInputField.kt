@@ -135,8 +135,8 @@ fun ChatInputField(
             MicIcon.value = true
             sendIcon.value = false
         }
-
         Send_MicButtonTransition(textFiledValue, viewModel =viewModel , sendIcon, MicIcon, chatId = chatId)
+
 
 
     }

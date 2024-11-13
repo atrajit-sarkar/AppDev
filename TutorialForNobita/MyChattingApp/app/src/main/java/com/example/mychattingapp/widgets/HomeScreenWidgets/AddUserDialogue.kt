@@ -26,7 +26,10 @@ fun AddUserUI(
     textFieldValue: MutableState<String>,
     viewModel: ChatAppViewModel
 ) {
-    Dialog(onDismissRequest = { showDialog.value = false }) {
+    Dialog(onDismissRequest = {
+        showDialog.value = false
+        textFieldValue.value=""
+    }) {
         Surface(
             modifier = Modifier.padding(16.dp),
             shape = MaterialTheme.shapes.large,
@@ -67,6 +70,7 @@ fun AddUserUI(
                             )
                         )
                         showDialog.value = false
+                        textFieldValue.value = ""
 
                     }
                 ) {

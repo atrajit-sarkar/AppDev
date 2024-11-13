@@ -14,7 +14,7 @@ import com.example.mychattingapp.Screens.Contacts
 import com.example.mychattingapp.Screens.HomeScreen
 import com.example.mychattingapp.Screens.SettingsScreen
 
-const val durationMillis = 220 // Slightly increased duration for smoother transitions
+const val durationMillis = 320 // Slightly increased duration for smoother transitions
 @Composable
 fun Navigation(viewModel: ChatAppViewModel) {
     val navController = rememberNavController()

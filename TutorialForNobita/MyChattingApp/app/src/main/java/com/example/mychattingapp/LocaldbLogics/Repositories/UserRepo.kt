@@ -12,4 +12,5 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
     suspend fun deleteUser(user: User)=userDao.deleteUser(user)
     suspend fun deleteAllUser()=userDao.deleteAllUsers()
     suspend fun updateUser(user: User)=userDao.updateUser(user)
+    fun getUserById(userId:Int)=userDao.getUserById(userId)
 }

@@ -1,7 +1,9 @@
 package com.example.mychattingapp.LocaldbLogics.ViewModel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
@@ -14,8 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatAppViewModel @Inject constructor(
-    private val chatrepository: ChatRepository,
-    private val userRepository: UserRepository
+    private val chatrepository: ChatRepository, private val userRepository: UserRepository
 ) : ViewModel() {
 
     val allChats = chatrepository.getAllMessages().asLiveData()
@@ -35,40 +36,47 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    fun updateMessage(message: Message){
+    fun updateMessage(message: Message) {
         viewModelScope.launch {
             chatrepository.updateMessage(message)
         }
     }
 
-    fun deleteAllMessage(){
+    fun getMessageById(chatId: Int): LiveData<List<Message>> =
+        chatrepository.getMessageById(chatId).asLiveData()
+
+
+    fun deleteAllMessage() {
         viewModelScope.launch {
             chatrepository.deleteAllMessage()
         }
     }
 
 
-
-
     //Userrepo functions..............
-    fun addUser(user: User){
+    fun addUser(user: User) {
         viewModelScope.launch {
             userRepository.insertUser(user)
         }
     }
-    fun deleteUser(user: User){
+
+    fun deleteUser(user: User) {
         viewModelScope.launch {
             userRepository.deleteUser(user)
         }
     }
 
-    fun updateUser(user: User){
+    fun updateUser(user: User) {
         viewModelScope.launch {
             userRepository.updateUser(user)
         }
     }
 
-    fun deleteAllUser(){
+    fun getUserById(userId: Int): LiveData<List<User>> =
+        userRepository.getUserById(userId).asLiveData()
+
+
+    fun deleteAllUser() {
         viewModelScope.launch {
             userRepository.deleteAllUser()
         }
