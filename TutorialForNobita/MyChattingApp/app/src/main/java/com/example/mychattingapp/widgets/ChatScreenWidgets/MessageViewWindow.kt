@@ -8,7 +8,9 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,16 +30,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 
@@ -97,12 +100,10 @@ val SampleReactionList = listOf(
 fun MessageViewWindow(
     innerPadding: PaddingValues = PaddingValues(10.dp),
     messageList: List<Message> = sampleMessageList,
-    isMessageSelected: MutableState<Boolean>,
     viewModel: ChatAppViewModel
-): MutableState<Int> {
-    var messageId = remember {
-        mutableStateOf(-1)
-    }
+) {
+    val selectedMessage by viewModel.selectedMessage.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,18 +120,48 @@ fun MessageViewWindow(
             horizontalAlignment = Alignment.End
         ) {
             items(messageList) { message ->
-                messageId = MessageItem(
-                    message = message,
-                    isMessageSelected = isMessageSelected,
-                    viewModel = viewModel
-                )
+                if (selectedMessage != null && selectedMessage == message) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min) // Adjust height as needed
+                    ) {
+                        // Green Card, full width and overlays MessageItem
+                        Card(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .zIndex(1f), // Ensures it overlays MessageItem
+                            colors = CardDefaults.cardColors(Color.Green.copy(alpha = 0.3f)),
+                            shape = RectangleShape
+                        ) {}
+
+                        // MessageItem aligned to the end horizontally
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterEnd) // Ensures it's at the end
+                        ) {
+                            MessageItem(
+                                message = message,
+                                viewModel = viewModel,
+                                onMessageClick = { viewModel.selectMessage(message) }
+                            )
+                        }
+                    }
+
+                } else {
+
+                    MessageItem(
+                        message = message,
+                        viewModel = viewModel,
+                        onMessageClick = { viewModel.selectMessage(message) }
+                    )
+                }
                 Spacer(modifier = Modifier.height(10.dp))
 
 
             }
         }
     }
-    return messageId
+
 }
 
 
@@ -139,9 +170,9 @@ fun MessageViewWindow(
 fun MessageItem(
     message: Message,
     isOwnMessage: Boolean = true,// Indicate if the message is sent by the user
-    isMessageSelected: MutableState<Boolean>,
-    viewModel: ChatAppViewModel
-): MutableState<Int> {
+    viewModel: ChatAppViewModel,
+    onMessageClick: (Message) -> Unit
+) {
     val reactionBarVisibility = remember {
         mutableStateOf(false)
     }
@@ -153,6 +184,7 @@ fun MessageItem(
     }
 
     val animateReaction = remember { mutableStateOf(false) } // Track animation trigger
+
 
 
     Column(
@@ -171,13 +203,13 @@ fun MessageItem(
                         // Toggle the selected reaction if the same reaction is selected
                         message.reaction = "" // Clear the reaction when deselected
                         animateReaction.value = true // Trigger animation for new reaction
-                        selectedReaction.value=false
+                        selectedReaction.value = false
 
                     } else {
                         // Set the new reaction when a different one is selected
                         message.reaction = reaction
                         animateReaction.value = false
-                        selectedReaction.value=true
+                        selectedReaction.value = true
 
                     }
 
@@ -203,16 +235,16 @@ fun MessageItem(
             colors = CardDefaults.cardColors(
                 containerColor = if (isOwnMessage) Color(0xFF128C7E) else MaterialTheme.colorScheme.surface
             ),
-            modifier = Modifier.combinedClickable(
-                onClick = { reactionBarVisibility.value = false },
+            modifier = Modifier
+                .combinedClickable(
+                onClick = { },
                 onDoubleClick = {
                     reactionBarVisibility.value = true
 
                 },
                 onLongClick = {
                     reactionBarVisibility.value = true
-//                    isMessageSelected.value = true
-//                    selectedChatId.value = message.id
+                    onMessageClick(message)
                 }
             )
         ) {
@@ -281,7 +313,4 @@ fun MessageItem(
 
     }
 
-
-
-    return selectedChatId
 }

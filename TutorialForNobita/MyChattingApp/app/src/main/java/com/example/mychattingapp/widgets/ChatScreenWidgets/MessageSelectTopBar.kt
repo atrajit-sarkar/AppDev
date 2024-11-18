@@ -45,6 +45,7 @@ fun MessageSelectTopBar(
         firstIcon = {
             IconButton(
                 onClick = {
+                    viewModel.clearSelectedMessage()
 
                 }
             ) {

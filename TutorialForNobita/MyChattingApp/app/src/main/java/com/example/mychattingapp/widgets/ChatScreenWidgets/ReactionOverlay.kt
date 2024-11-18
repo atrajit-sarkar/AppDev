@@ -56,12 +56,12 @@ fun ReactionOverlay(
         onDismissRequest = onDismiss,
         offset = IntOffset(y = -69, x = 0),
         properties = PopupProperties(
-            focusable = true,
+            focusable = false,
             dismissOnBackPress = true,
             dismissOnClickOutside = true,
             usePlatformDefaultWidth = true,
             clippingEnabled = true,
-            excludeFromSystemGesture = true
+            excludeFromSystemGesture = false
         )
     ) {
 

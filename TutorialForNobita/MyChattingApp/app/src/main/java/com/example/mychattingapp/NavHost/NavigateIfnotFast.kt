@@ -3,7 +3,7 @@ package com.example.mychattingapp.NavHost
 import android.os.Handler
 import android.os.Looper
 
-private const val debounceTime = 200L
+private const val debounceTime = 300L
 private const val delayTime = 130L
 private var lastClickTime = 0L
 

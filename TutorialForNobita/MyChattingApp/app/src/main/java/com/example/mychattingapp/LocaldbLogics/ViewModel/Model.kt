@@ -11,6 +11,8 @@ import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
 import com.example.mychattingapp.LocaldbLogics.Repositories.ChatRepository
 import com.example.mychattingapp.LocaldbLogics.Repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,8 +21,20 @@ class ChatAppViewModel @Inject constructor(
     private val chatrepository: ChatRepository, private val userRepository: UserRepository
 ) : ViewModel() {
 
+
     val allChats = chatrepository.getAllMessages().asLiveData()
     val allUsers = userRepository.getAllUsers().asLiveData()
+
+    private val _selectedMessage = MutableStateFlow<Message?>(null)
+    val selectedMessage: StateFlow<Message?> = _selectedMessage
+
+    fun selectMessage(message: Message) {
+        _selectedMessage.value = message
+    }
+
+    fun clearSelectedMessage() {
+        _selectedMessage.value = null
+    }
 
 
     // Chatrepo Functions.........
