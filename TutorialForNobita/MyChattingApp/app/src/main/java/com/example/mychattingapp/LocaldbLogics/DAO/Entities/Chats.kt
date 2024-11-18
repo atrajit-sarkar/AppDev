@@ -23,5 +23,6 @@ data class Message(
     val chatId: Int,  // Foreign key linking to Chat entity
     var sender: String,
     var text: String,
-    var timestamp: String
+    var timestamp: String,
+    var reaction:String
 )

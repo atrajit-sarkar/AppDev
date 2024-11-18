@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.NavHost.Navigation
+import com.example.mychattingapp.ui.theme.MyChattingAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,9 +17,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewmodel:ChatAppViewModel by viewModels()
-            
-            Navigation(viewmodel)
+            val viewmodel: ChatAppViewModel by viewModels()
+            MyChattingAppTheme {
+
+                Navigation(viewmodel)
+            }
+
 
         }
     }

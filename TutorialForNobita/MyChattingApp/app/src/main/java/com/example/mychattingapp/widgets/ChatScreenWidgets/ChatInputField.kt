@@ -39,7 +39,7 @@ fun ChatInputField(
     sendIcon: MutableState<Boolean>,
     MicIcon: MutableState<Boolean>,
     viewModel: ChatAppViewModel,
-    chatId:Int
+    chatId: Int
 ) {
     BottomAppBar(
         containerColor = Color.Transparent,
@@ -51,7 +51,7 @@ fun ChatInputField(
         BasicTextField(
             value = textFiledValue.value,
             onValueChange = {
-                textFiledValue.value=it
+                textFiledValue.value = it
             },
             cursorBrush = SolidColor(Color.Green),
             textStyle = TextStyle(
@@ -70,13 +70,26 @@ fun ChatInputField(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    IconButton(
+                        onClick = {
+
+                        },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+
+                        FaIcon(
+                            faIcon = FaIcons.StickyNote,
+                            tint = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .width(169.dp)
                             .align(Alignment.CenterVertically)
                     ) {
                         // Stack innerTextField and placeholder
-                        if (textFiledValue.value=="") {
+                        if (textFiledValue.value == "") {
                             Text("Message", color = Color.Gray)
                         }
                         innerTextField() // Cursor will appear at the start of the input
@@ -103,10 +116,10 @@ fun ChatInputField(
                         Spacer(modifier = Modifier.width(20.dp))
 
                         // Toggle visibility of the camera icon based on the text field's content
-                        if (textFiledValue.value==""){
-                            showCameraIcon.value=true
-                        }else{
-                            showCameraIcon.value=false
+                        if (textFiledValue.value == "") {
+                            showCameraIcon.value = true
+                        } else {
+                            showCameraIcon.value = false
                         }
 
                         AnimatedVisibility(visible = showCameraIcon.value) {
@@ -135,8 +148,13 @@ fun ChatInputField(
             MicIcon.value = true
             sendIcon.value = false
         }
-        Send_MicButtonTransition(textFiledValue, viewModel =viewModel , sendIcon, MicIcon, chatId = chatId)
-
+        Send_MicButtonTransition(
+            textFiledValue,
+            viewModel = viewModel,
+            sendIcon,
+            MicIcon,
+            chatId = chatId
+        )
 
 
     }

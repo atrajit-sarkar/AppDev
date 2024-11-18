@@ -13,8 +13,10 @@ import com.example.mychattingapp.Screens.ChatScreen
 import com.example.mychattingapp.Screens.Contacts
 import com.example.mychattingapp.Screens.HomeScreen
 import com.example.mychattingapp.Screens.SettingsScreen
+import com.example.mychattingapp.Screens.SwipeableScreensWithTabs
 
 const val durationMillis = 320 // Slightly increased duration for smoother transitions
+
 @Composable
 fun Navigation(viewModel: ChatAppViewModel) {
     val navController = rememberNavController()
@@ -58,15 +60,27 @@ fun Navigation(viewModel: ChatAppViewModel) {
             )
         }
     ) {
-        composable("home_screen") { HomeScreen(navController = navController, viewModel = viewModel) }
+//        composable("home_screen") { HomeScreen(navController = navController, viewModel = viewModel) }
+        composable("home_screen") {
+            SwipeableScreensWithTabs(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
         composable("chat_screen/{chatId}") {
             it.arguments?.getString("chatId")
-                ?.let { it1 -> ChatScreen(navController = navController, chatId = it1.toInt(), viewModel = viewModel) }
+                ?.let { it1 ->
+                    ChatScreen(
+                        navController = navController,
+                        chatId = it1.toInt(),
+                        viewModel = viewModel
+                    )
+                }
         }
-        composable("settings_screen"){
+        composable("settings_screen") {
             SettingsScreen(navController = navController)
         }
-        composable("allcontact_screen"){
+        composable("allcontact_screen") {
             Contacts(navController = navController)
         }
 

@@ -7,7 +7,7 @@ import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
 import com.example.mychattingapp.LocaldbLogics.DAO.daoMethods.MessageDao
 import com.example.mychattingapp.LocaldbLogics.DAO.daoMethods.UserDao
 
-@Database(entities = [Message::class,User::class], version = 2, exportSchema = false)
+@Database(entities = [Message::class,User::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
     abstract fun userDao(): UserDao

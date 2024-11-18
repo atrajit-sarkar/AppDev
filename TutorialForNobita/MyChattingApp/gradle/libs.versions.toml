@@ -1,6 +1,12 @@
 [versions]
 accompanistNavigationAnimation = "0.30.1"
+accompanistPager = "<latest-version>"
+accompanistPagerIndicators = "0.36.0"
+accompanistPagerVersion = "0.36.0"
 agp = "8.6.0"
+emoji2 = "1.5.0"
+emojipicker = "15.1"
+emojiPickerCompose = "1.0.0"
 fontawesomecompose = "1.1.0"
 fontawesomecomposeVersion = "Tag"
 hiltAndroid = "2.51.1"
@@ -26,9 +32,16 @@ runtimeLivedata = "1.7.5"
 
 [libraries]
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
+accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPager" }
+accompanist-pager-indicators-v0360 = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPagerIndicators" }
+accompanist-pager-v0360 = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-emoji2 = { module = "androidx.emoji2:emoji2", version.ref = "emoji2" }
+androidx-emojipicker = { module = "androidx.emoji2:emojipicker", version.ref = "emojipicker" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+emoji-picker-compose = { module = "io.github.dev-architech:emoji-picker-compose", version.ref = "emojiPickerCompose" }
 fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
 fontawesomecompose-vtag = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecomposeVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }

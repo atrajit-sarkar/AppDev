@@ -47,7 +47,8 @@ fun RowScope.Send_MicButtonTransition(
                         sender = "Atrajit",
                         text = textFiledValue.value,
                         timestamp = currentTime,
-                        chatId = chatId
+                        chatId = chatId,
+                        reaction = ""
                     )
                 ) // Add message at the top
                 textFiledValue.value = "" // Clear the input

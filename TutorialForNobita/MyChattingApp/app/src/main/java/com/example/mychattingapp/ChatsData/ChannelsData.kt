@@ -1,5 +1,6 @@
 package com.example.mychattingapp.ChatsData
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.guru.fontawesomecomposelib.FaIcon
@@ -16,7 +17,8 @@ fun loadChannels(): List<ChannelsData> {
             channelicon = {
                 FaIcon(
                     faIcon = FaIcons.UserCircle,
-                    size = 80.dp
+                    size = 80.dp,
+                    tint = MaterialTheme.colorScheme.onBackground
 
                 )
 
@@ -25,7 +27,8 @@ fun loadChannels(): List<ChannelsData> {
             channelicon = {
                 FaIcon(
                     faIcon = FaIcons.UserCircle,
-                    size = 80.dp
+                    size = 80.dp,
+                    tint = MaterialTheme.colorScheme.onBackground
 
                 )
 
@@ -34,7 +37,8 @@ fun loadChannels(): List<ChannelsData> {
             channelicon = {
                 FaIcon(
                     faIcon = FaIcons.UserCircle,
-                    size = 80.dp
+                    size = 80.dp,
+                    tint = MaterialTheme.colorScheme.onBackground
 
                 )
 
@@ -43,7 +47,8 @@ fun loadChannels(): List<ChannelsData> {
             channelicon = {
                 FaIcon(
                     faIcon = FaIcons.UserCircle,
-                    size = 80.dp
+                    size = 80.dp,
+                    tint = MaterialTheme.colorScheme.onBackground
 
                 )
 

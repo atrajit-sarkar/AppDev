@@ -26,6 +26,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mychattingapp.ChatsData.loadChannels
 import com.example.mychattingapp.ChatsData.loadStatuses
 import com.example.mychattingapp.NavHost.navigateIfNotFast
+import com.example.mychattingapp.ui.theme.MyChattingAppTheme
 import com.example.mychattingapp.widgets.HomeScreenWidgets.TopBarFun
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIcons
@@ -49,48 +51,15 @@ import com.guru.fontawesomecomposelib.FaIcons
 @Composable
 fun UpdateScreen() {
     val listOfUserStatuses = loadStatuses()
-    Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopBarFun(
-                firstIcon = {
-                },
-                text = "Updates",
-                color = Color.Transparent,
-                body = {
-                    IconButton(
-                        onClick = {}
 
-                    )
-                    {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = null,
-                            tint = Color.Black
-
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = Color.Black,
-//                        modifier = Modifier.()
-                    )
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.padding(horizontal = 10.dp)
-                    )
-
-                }
-
-            )
+    MyChattingAppTheme {
 
 
-        }
-    ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)
-            .padding(10.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxHeight()
+        ) {
             // Before Channel Contents........
             item {
                 // Status Contents.............
@@ -138,19 +107,62 @@ fun UpdateScreen() {
             items(loadChannels()) { channel ->
 
                 Card(modifier = Modifier.fillMaxSize()) {
-                    Row(horizontalArrangement = Arrangement.Center,
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(5.dp)) {
+                        modifier = Modifier.padding(5.dp)
+                    ) {
                         channel.channelicon()
-                        Text(channel.channelname,
-                            modifier = Modifier.padding(horizontal = 10.dp))
+                        Text(
+                            channel.channelname,
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                        )
                     }
                 }
-                Spacer(modifier=Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
         }
     }
+
+}
+
+@Composable
+fun SettingScreenTopAppBar() {
+    TopBarFun(
+        firstIcon = {
+        },
+        text = "Updates",
+        color = Color.Transparent,
+        body = {
+            IconButton(
+                onClick = {}
+
+            )
+            {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
+
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+//                        modifier = Modifier.()
+            )
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(horizontal = 10.dp)
+            )
+
+        }
+
+    )
 }
 
 @Preview

@@ -91,6 +91,17 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(kotlin("script-runtime"))
 
+    // Accompanist Pager (for swipeable screens)
+    implementation (libs.accompanist.pager.v0360)
+
+    // Optional: Accompanist Pager Indicators (for Tab or Dots)
+    implementation (libs.accompanist.pager.indicators.v0360)
+
+    // Emoji Picker Dialogue ..........
+//    implementation (libs.androidx.emojipicker)
+
+
+
 
 }
 

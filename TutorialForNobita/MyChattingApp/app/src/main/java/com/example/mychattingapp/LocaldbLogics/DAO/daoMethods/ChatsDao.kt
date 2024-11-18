@@ -28,4 +28,5 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE chatId = :chatId")
     fun getMessageById(chatId: Int): Flow<List<Message>>
+
 }
