@@ -274,9 +274,8 @@ private fun SubMessageItem(
                 .combinedClickable(
                     onClick = {
                         if (messageSelectInitiated) {
-                            if (!viewModel.isMessageSelected(message)) {
-                                viewModel.selectAMessage(message)
-                            }
+
+                            viewModel.selectAMessage(message)
                         }
                     },
                     onDoubleClick = {

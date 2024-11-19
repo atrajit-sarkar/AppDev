@@ -54,7 +54,7 @@ class ChatAppViewModel @Inject constructor(
 
     // 4. Function to deselect (remove) a message
     fun deselectMessage(message: Message) {
-        _selectedMessages.value = _selectedMessages.value.filter { it.id != message.id }
+        _selectedMessages.value -=message
 
     }
 
