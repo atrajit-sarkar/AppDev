@@ -82,7 +82,6 @@ fun ChatScreen(
                 AnimatedVisibility(visible = showScrollToBottomFab) {
 
                     FloatingActionButton(
-                        elevation = FloatingActionButtonDefaults.elevation(20.dp),
                         containerColor = MaterialTheme.colorScheme.background,
                         shape = CircleShape,
                         modifier = Modifier.size(35.dp),
