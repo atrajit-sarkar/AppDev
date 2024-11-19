@@ -1,5 +1,6 @@
 package com.example.mychattingapp.LocaldbLogics.DAO.Entities
 
+import androidx.compose.runtime.Composable
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -24,5 +25,6 @@ data class Message(
     var sender: String,
     var text: String,
     var timestamp: String,
-    var reaction:String
+    var reaction:String,
+    var icons: String=""
 )

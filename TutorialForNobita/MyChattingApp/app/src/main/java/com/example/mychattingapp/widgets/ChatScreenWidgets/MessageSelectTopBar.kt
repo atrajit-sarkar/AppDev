@@ -41,6 +41,10 @@ fun MessageSelectTopBar(
     val showDeleteMessageDialogue = remember {
         mutableStateOf(false)
     }
+
+    val isMessegeSelectDropDown = remember {
+        mutableStateOf(false)
+    }
     TopBarFun(
         firstIcon = {
             IconButton(
@@ -96,7 +100,7 @@ fun MessageSelectTopBar(
                     showDialog = showDeleteMessageDialogue,
                     viewModel = viewModel,
                     messageList = messageList,
-                    onDismiss=onDismiss
+                    onDismiss = onDismiss
                 )
 
                 IconButton(
@@ -109,13 +113,16 @@ fun MessageSelectTopBar(
                     )
                 }
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        isMessegeSelectDropDown.value = true
+                    }
 
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = ""
                     )
+                    MessegeSelectDropDownMenu(expanded = isMessegeSelectDropDown, viewModel = viewModel)
                 }
 
             }
@@ -146,7 +153,7 @@ private fun ShowDeleteMessageDialogue(
                     Text(text = "Want to delete?")
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {
-                        for (message in messageList){
+                        for (message in messageList) {
                             viewModel.deleteMessage(message)
                         }
                         showDialog.value = false

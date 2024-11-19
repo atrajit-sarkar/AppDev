@@ -44,6 +44,15 @@ class ChatAppViewModel @Inject constructor(
     private val _messageSelectInitiated = MutableStateFlow(false)
     val messageSelectInitiated: StateFlow<Boolean> = _messageSelectInitiated
 
+    // Boolean to initiate editing Messages...............
+    private val _messageEditingInitiated = MutableStateFlow(false)
+    val messageEditingInitiated: StateFlow<Boolean> = _messageEditingInitiated
+
+    // Function to change the value of editing message initiated..........
+    fun isEditingInitiated(value: Boolean) {
+        _messageEditingInitiated.value = value
+    }
+
     // 2. List to hold selected messages
     private val _selectedMessages = MutableStateFlow<List<Message>>(emptyList())
     val selectedMessages: StateFlow<List<Message>> = _selectedMessages

@@ -16,6 +16,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
@@ -31,26 +35,48 @@ fun RowScope.Send_MicButtonTransition(
     viewModel: ChatAppViewModel,
     sendIcon: MutableState<Boolean>,
     MicIcon: MutableState<Boolean>,
-    chatId:Int
+    chatId: Int
 ) {
+    val isEditingInitiated by viewModel.messageEditingInitiated.collectAsState()
+    val selectedMessages by viewModel.selectedMessages.collectAsState()
+    val isEditingGoingOn= remember {
+        mutableStateOf(false)
+    }
+    if (isEditingInitiated) {
+        textFiledValue.value = selectedMessages[0].text
+        viewModel.isEditingInitiated(false)
+        isEditingGoingOn.value=true
+    }
     IconButton(
         colors = IconButtonDefaults.iconButtonColors(Color.Green),
         onClick = {
+            val currentTime =
+                SimpleDateFormat(
+                    "HH:mm",
+                    Locale.getDefault()
+                ).format(Date())
+
             if (textFiledValue.value.isNotBlank()) {
-                val currentTime =
-                    SimpleDateFormat(
-                        "HH:mm",
-                        Locale.getDefault()
-                    ).format(Date())
-                viewModel.addMessage(
-                    Message(
-                        sender = "Atrajit",
-                        text = textFiledValue.value,
-                        timestamp = currentTime,
-                        chatId = chatId,
-                        reaction = ""
-                    )
-                ) // Add message at the top
+                if (!isEditingGoingOn.value) {
+
+                    viewModel.addMessage(
+                        Message(
+                            sender = "Atrajit",
+                            text = textFiledValue.value,
+                            timestamp = currentTime,
+                            chatId = chatId,
+                            reaction = ""
+                        )
+                    ) // Add message at the top
+                } else {
+                    selectedMessages[0].text = textFiledValue.value
+                    selectedMessages[0].timestamp=currentTime
+                    selectedMessages[0].icons="Edited"
+                    viewModel.updateMessage(selectedMessages[0])
+                    isEditingGoingOn.value=false
+                    viewModel.clearSelectedMessages()
+                }
+
                 textFiledValue.value = "" // Clear the input
                 // Scroll to the newest message
 //                                Log.d("message", "ChatScreen: $messageList")

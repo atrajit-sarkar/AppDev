@@ -14,10 +14,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-val MIGRATION_2_3 = object : Migration(2, 3) {
+val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Add or modify tables and columns here
-        database.execSQL("ALTER TABLE messages ADD COLUMN reaction TEXT NOT NULL DEFAULT ''")
+        database.execSQL("ALTER TABLE messages ADD COLUMN icons TEXT NOT NULL DEFAULT ''")
     }
 }
 
@@ -31,7 +31,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_2_3)
+        ).addMigrations(MIGRATION_3_4)
             .build()
     }
 

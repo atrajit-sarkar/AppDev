@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
+import com.guru.fontawesomecomposelib.FaIcon
+import com.guru.fontawesomecomposelib.FaIcons
 import kotlinx.coroutines.launch
 
 val sampleMessageList = listOf(
@@ -326,6 +328,15 @@ private fun SubMessageItem(
                     modifier = Modifier.align(Alignment.Bottom),
                     style = MaterialTheme.typography.labelSmall
                 )
+
+                if (message.icons=="Edited"){
+                    Spacer(modifier = Modifier.width(5.dp))
+                    FaIcon(
+                        faIcon = FaIcons.PencilAlt,
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
+                    )
+                }
             }
         }
 
