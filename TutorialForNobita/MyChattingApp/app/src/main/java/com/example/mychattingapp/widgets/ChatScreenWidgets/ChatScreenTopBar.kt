@@ -65,7 +65,7 @@ fun ChatScreenTopBar(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
         },
@@ -80,7 +80,7 @@ fun ChatScreenTopBar(
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Profile Picture",
                     modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.width(8.dp))
 
@@ -92,14 +92,14 @@ fun ChatScreenTopBar(
                     Text(
                         text = contactName,
                         fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // Truncate with ellipsis if too long
                     )
                     Text(
                         text = lastSeen,
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1
                     )
                 }
@@ -109,14 +109,14 @@ fun ChatScreenTopBar(
                     IconButton(onClick = {}) {
                         FaIcon(
                             faIcon = FaIcons.Video,
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.Call,
                             contentDescription = "Call",
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                     IconButton(onClick = {
@@ -127,7 +127,7 @@ fun ChatScreenTopBar(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More Options",
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                         DropDownMenuChatScreen(expanded, navController, subexpanded = subexpanded)
                         SubDropDownMenuChatScreen(subexpanded, clearChatDialog = clearChatDialog)
@@ -139,7 +139,7 @@ fun ChatScreenTopBar(
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary),
+        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.background),
         modifier = Modifier.fillMaxWidth()
     )
 

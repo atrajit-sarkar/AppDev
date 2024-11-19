@@ -1,5 +1,6 @@
 package com.example.mychattingapp.LocaldbLogics.ViewModel
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -54,7 +55,7 @@ class ChatAppViewModel @Inject constructor(
 
     // 4. Function to deselect (remove) a message
     fun deselectMessage(message: Message) {
-        _selectedMessages.value -=message
+        _selectedMessages.value -= message
 
     }
 
@@ -73,6 +74,12 @@ class ChatAppViewModel @Inject constructor(
     fun isMessageSelectInitiated(value: Boolean) {
         _messageSelectInitiated.value = value
     }
+
+    //............................................
+    // Expose LazyListState using MutableStateFlow
+    private val _lazyListState = MutableStateFlow(LazyListState())
+    val lazyListState: StateFlow<LazyListState> = _lazyListState
+    //............................................
 
 
     // Chat repo Functions.........
