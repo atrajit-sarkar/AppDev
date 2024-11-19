@@ -35,7 +35,7 @@ import com.guru.fontawesomecomposelib.FaIcons
 fun MessageSelectTopBar(
     selectedChats: String = "1",
     viewModel: ChatAppViewModel,
-    message: Message,
+    messageList: List<Message>,
     onDismiss: () -> Unit
 ) {
     val showDeleteMessageDialogue = remember {
@@ -45,7 +45,7 @@ fun MessageSelectTopBar(
         firstIcon = {
             IconButton(
                 onClick = {
-                    viewModel.clearSelectedMessage()
+                    viewModel.clearSelectedMessages()
 
                 }
             ) {
@@ -95,7 +95,7 @@ fun MessageSelectTopBar(
                 ShowDeleteMessageDialogue(
                     showDialog = showDeleteMessageDialogue,
                     viewModel = viewModel,
-                    message = message,
+                    messageList = messageList,
                     onDismiss=onDismiss
                 )
 
@@ -128,7 +128,7 @@ fun MessageSelectTopBar(
 private fun ShowDeleteMessageDialogue(
     showDialog: MutableState<Boolean>,
     viewModel: ChatAppViewModel,
-    message: Message,
+    messageList: List<Message>,
     onDismiss: () -> Unit
 ) {
     if (showDialog.value) {
@@ -146,8 +146,11 @@ private fun ShowDeleteMessageDialogue(
                     Text(text = "Want to delete?")
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {
-                        viewModel.deleteMessage(message)
+                        for (message in messageList){
+                            viewModel.deleteMessage(message)
+                        }
                         showDialog.value = false
+                        viewModel.clearSelectedMessages()
                         onDismiss()
                     }) {
                         Text("Yes")

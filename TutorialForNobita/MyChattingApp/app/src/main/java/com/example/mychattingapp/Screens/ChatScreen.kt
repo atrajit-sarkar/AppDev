@@ -39,7 +39,12 @@ fun ChatScreen(
     val MicIcon = remember { mutableStateOf(false) }
 
     // Message delete implementation...........
-    val selectedMessage by viewModel.selectedMessage.collectAsState()
+    val selectedMessages by viewModel.selectedMessages.collectAsState()
+    Log.d("SelectedMessages", "ChatScreen: $selectedMessages")
+
+    if (selectedMessages.isEmpty()){
+        viewModel.isMessageSelectInitiated(false)
+    }
 
 
     MyChattingAppTheme {
@@ -60,11 +65,12 @@ fun ChatScreen(
                         user = currentUser[0]
                     )
                 }
-                if (selectedMessage != null) {
+                if (selectedMessages.isNotEmpty()) {
                     MessageSelectTopBar(
+                        selectedChats = "${selectedMessages.size}",
                         viewModel = viewModel,
-                        message = selectedMessage!!,
-                        onDismiss = { viewModel.clearSelectedMessage() }
+                        messageList = selectedMessages,
+                        onDismiss = { viewModel.clearSelectedMessages() }
                     )
                 }
 

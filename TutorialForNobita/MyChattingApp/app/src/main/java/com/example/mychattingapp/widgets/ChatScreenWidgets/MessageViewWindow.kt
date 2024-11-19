@@ -1,5 +1,7 @@
 package com.example.mychattingapp.widgets.ChatScreenWidgets
 
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,6 +9,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -102,7 +106,6 @@ fun MessageViewWindow(
     messageList: List<Message> = sampleMessageList,
     viewModel: ChatAppViewModel
 ) {
-    val selectedMessage by viewModel.selectedMessage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -120,41 +123,12 @@ fun MessageViewWindow(
             horizontalAlignment = Alignment.End
         ) {
             items(messageList) { message ->
-                if (selectedMessage != null && selectedMessage == message) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min) // Adjust height as needed
-                    ) {
-                        // Green Card, full width and overlays MessageItem
-                        Card(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .zIndex(1f), // Ensures it overlays MessageItem
-                            colors = CardDefaults.cardColors(Color.Green.copy(alpha = 0.3f)),
-                            shape = RectangleShape
-                        ) {}
+                MessageItem(
+                    message = message,
+                    viewModel = viewModel,
+                    onMessageClick = { viewModel.selectAMessage(message) }
+                )
 
-                        // MessageItem aligned to the end horizontally
-                        Box(
-                            modifier = Modifier.align(Alignment.CenterEnd) // Ensures it's at the end
-                        ) {
-                            MessageItem(
-                                message = message,
-                                viewModel = viewModel,
-                                onMessageClick = { viewModel.selectMessage(message) }
-                            )
-                        }
-                    }
-
-                } else {
-
-                    MessageItem(
-                        message = message,
-                        viewModel = viewModel,
-                        onMessageClick = { viewModel.selectMessage(message) }
-                    )
-                }
                 Spacer(modifier = Modifier.height(10.dp))
 
 
@@ -165,7 +139,6 @@ fun MessageViewWindow(
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
     message: Message,
@@ -179,18 +152,13 @@ fun MessageItem(
 
     val selectedReaction = remember { mutableStateOf(false) } // Track current reaction
 
-    val selectedChatId = remember {
-        mutableStateOf(-1)
-    }
 
     val animateReaction = remember { mutableStateOf(false) } // Track animation trigger
 
 
-
-    Column(
+    Box(
         modifier = Modifier
-            .widthIn(max = 350.dp),
-        horizontalAlignment = Alignment.End
+            .widthIn(max = 350.dp)
     ) {
 
         // Code for Reaction Bar............
@@ -215,10 +183,77 @@ fun MessageItem(
 
                     reactionBarVisibility.value = false
                     viewModel.updateMessage(message) //Save the reaction to DB
+                    viewModel.clearSelectedMessages()
                 }
 
             )
         }
+
+        if (viewModel.isMessageSelected(message)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min) // Adjust height as needed
+                    .clickable {
+                        viewModel.deselectMessage(message)
+                    }
+            ) {
+                // Green Card, full width and overlays MessageItem
+                Card(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f), // Ensures it overlays MessageItem
+                    colors = CardDefaults.cardColors(Color.Green.copy(alpha = 0.3f)),
+                    shape = RectangleShape
+                ) {}
+
+                // MessageItem aligned to the end horizontally
+                Box(
+                    modifier = Modifier.align(Alignment.CenterEnd) // Ensures it's at the end
+                ) {
+                    SubMessageItem(
+                        message,
+                        isOwnMessage,
+                        reactionBarVisibility,
+                        onMessageClick,
+                        selectedReaction,
+                        viewModel = viewModel
+                    )
+
+                }
+            }
+
+        } else {
+            SubMessageItem(
+                message,
+                isOwnMessage,
+                reactionBarVisibility,
+                onMessageClick,
+                selectedReaction,
+                viewModel = viewModel
+            )
+        }
+
+
+    }
+
+}
+
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun SubMessageItem(
+    message: Message,
+    isOwnMessage: Boolean,
+    reactionBarVisibility: MutableState<Boolean>,
+    onMessageClick: (Message) -> Unit,
+    selectedReaction: MutableState<Boolean>,
+    viewModel: ChatAppViewModel
+) {
+    val messageSelectInitiated by viewModel.messageSelectInitiated.collectAsState()
+    Log.d("isMessageSelect", "SubMessageItem: $messageSelectInitiated")
+
+    Column(horizontalAlignment = Alignment.End) {
 
 
         Text(message.sender)
@@ -237,16 +272,24 @@ fun MessageItem(
             ),
             modifier = Modifier
                 .combinedClickable(
-                onClick = { },
-                onDoubleClick = {
-                    reactionBarVisibility.value = true
+                    onClick = {
+                        if (messageSelectInitiated) {
+                            if (!viewModel.isMessageSelected(message)) {
+                                viewModel.selectAMessage(message)
+                            }
+                        }
+                    },
+                    onDoubleClick = {
+                        reactionBarVisibility.value = true
+                        viewModel.deselectMessage(message)
 
-                },
-                onLongClick = {
-                    reactionBarVisibility.value = true
-                    onMessageClick(message)
-                }
-            )
+                    },
+                    onLongClick = {
+                        reactionBarVisibility.value = true
+                        viewModel.isMessageSelectInitiated(true)
+                        onMessageClick(message)
+                    }
+                )
         ) {
             Row(modifier = Modifier.padding(5.dp)) {
                 Text(
@@ -283,7 +326,7 @@ fun MessageItem(
         }
 
 
-        androidx.compose.animation.AnimatedVisibility(
+        AnimatedVisibility(
             visible = selectedReaction.value, // Animate only on new reaction
             enter = fadeIn(animationSpec = tween(300)) + scaleIn(
                 initialScale = 0.8f, // Start smaller for popup effect
@@ -309,8 +352,5 @@ fun MessageItem(
                 )
             }
         }
-
-
     }
-
 }

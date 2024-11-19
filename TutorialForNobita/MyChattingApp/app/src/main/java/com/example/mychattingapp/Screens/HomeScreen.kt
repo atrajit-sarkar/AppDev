@@ -67,12 +67,13 @@ fun HomeScreen(
 
     // ChatAppViewModel Variables.......
     val userList by viewModel.allUsers.observeAsState(emptyList())
-    val messageList by viewModel.allChats.observeAsState(emptyList())
 
-    // Horizontal Scroll Variables........
-    val pagerState = rememberPagerState(pageCount = { 3 })
-    val coroutineScope = rememberCoroutineScope()
 
+//    val messageList by viewModel.allChats.observeAsState(emptyList())
+//
+//    // Horizontal Scroll Variables........
+//    val pagerState = rememberPagerState(pageCount = { 3 })
+//    val coroutineScope = rememberCoroutineScope()
 
 
     MyChattingAppTheme {
@@ -86,7 +87,8 @@ fun HomeScreen(
                 val messages by viewModel.getMessageById(contact.id).observeAsState(emptyList())
                 if (messages.isNotEmpty()) {
 
-                    contact.recentMessage = messages.last().text
+                    contact.recentMessage =
+                        if (messages.last().reaction == "") messages.last().text else "You reacted ${messages.last().reaction} to \"${messages.last().text}\""
                     contact.messageSentTime = messages.last().timestamp
                 } else {
                     contact.recentMessage = ""

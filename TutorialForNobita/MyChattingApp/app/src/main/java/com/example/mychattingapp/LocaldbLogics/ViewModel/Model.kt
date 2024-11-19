@@ -37,7 +37,45 @@ class ChatAppViewModel @Inject constructor(
     }
 
 
-    // Chatrepo Functions.........
+    //___________________________________________________________________________________________
+
+    // 1. Boolean to track if message selection is initiated
+    private val _messageSelectInitiated = MutableStateFlow(false)
+    val messageSelectInitiated: StateFlow<Boolean> = _messageSelectInitiated
+
+    // 2. List to hold selected messages
+    private val _selectedMessages = MutableStateFlow<List<Message>>(emptyList())
+    val selectedMessages: StateFlow<List<Message>> = _selectedMessages
+
+    // 3. Function to select (add) a message
+    fun selectAMessage(message: Message) {
+        _selectedMessages.value += message
+    }
+
+    // 4. Function to deselect (remove) a message
+    fun deselectMessage(message: Message) {
+        _selectedMessages.value = _selectedMessages.value.filter { it.id != message.id }
+
+    }
+
+    // 5. Function to clear all selected messages
+    fun clearSelectedMessages() {
+        _selectedMessages.value = emptyList()
+
+    }
+
+    // 6. Function to check if a message is already selected
+    fun isMessageSelected(message: Message): Boolean {
+        return _selectedMessages.value.any { it.id == message.id }
+    }
+
+    // 7. Function to change the value of messageSelectInitiated......
+    fun isMessageSelectInitiated(value: Boolean) {
+        _messageSelectInitiated.value = value
+    }
+
+
+    // Chat repo Functions.........
     fun addMessage(message: Message) {
         viewModelScope.launch {
             chatrepository.insertMessage(message)

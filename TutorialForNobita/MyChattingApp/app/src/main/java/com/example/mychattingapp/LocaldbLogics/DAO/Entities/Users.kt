@@ -10,5 +10,6 @@ data class User(
     var userName:String,
     var messageSentTime:String,
     var recentMessage:String,
-    var messageCounter:String
+    var messageCounter:String,
+
 )
