@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import com.example.mychattingapp.widgets.ChatScreenWidgets.ChatInputField
 import com.example.mychattingapp.widgets.ChatScreenWidgets.ChatScreenTopBar
 import com.example.mychattingapp.widgets.ChatScreenWidgets.MessageSelectTopBar
 import com.example.mychattingapp.widgets.ChatScreenWidgets.MessageViewWindow
+import com.example.mychattingapp.widgets.ChatScreenWidgets.sampleMessageList
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIcons
 import kotlinx.coroutines.flow.map
@@ -39,12 +41,16 @@ fun ChatScreen(
     viewModel: ChatAppViewModel,
     lastSeen: String = "12:00 PM",
     navController: NavController = rememberNavController(),
-    chatId: Int
+    chatId: Int,
+    messageId:Int=-1
 ) {
+
+
     val textFiledValue = remember { mutableStateOf("") }
 
     val messageList by viewModel.getMessageById(chatId).observeAsState(emptyList())
     val currentUser by viewModel.getUserById(chatId).observeAsState(emptyList())
+
 
     val sendIcon = remember { mutableStateOf(false) }
     val MicIcon = remember { mutableStateOf(false) }
@@ -60,6 +66,7 @@ fun ChatScreen(
     val listState by viewModel.lazyListState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+
     val showScrollToBottomFab by remember {
         derivedStateOf {
             val lastIndex = messageList.lastIndex
@@ -73,6 +80,7 @@ fun ChatScreen(
             }
         }
     }
+
 
 
 
@@ -134,7 +142,8 @@ fun ChatScreen(
             MessageViewWindow(
                 innerPadding = innerPadding,
                 messageList = messageList,
-                viewModel = viewModel
+                viewModel = viewModel,
+                messageId = messageId
             )
 
         }

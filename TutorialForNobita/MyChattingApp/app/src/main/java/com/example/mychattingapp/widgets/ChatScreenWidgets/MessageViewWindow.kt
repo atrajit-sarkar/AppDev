@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -118,26 +120,43 @@ val SampleReactionList = listOf(
 fun MessageViewWindow(
     innerPadding: PaddingValues = PaddingValues(10.dp),
     messageList: List<Message> = sampleMessageList,
-    viewModel: ChatAppViewModel
+    viewModel: ChatAppViewModel,
+    messageId: Int
 ) {
 
     // Initialize LazyListState
-    val listState by viewModel.lazyListState.collectAsState()
     val keyboardHeight = WindowInsets.ime.getBottom(LocalDensity.current)
     val coroutineScope = rememberCoroutineScope()
 
-    // Scroll to the last item when the items list changes
-    LaunchedEffect(messageList.size, keyboardHeight) {
-        if (messageList.isNotEmpty()) {
-            coroutineScope.launch {
+    val lazyListState by viewModel.lazyListState.collectAsState()
 
-                listState.scrollToItem(messageList.size - 1)
+
+    // Scroll to the specific message on first load
+    if (messageId != -1) {
+
+        LaunchedEffect(messageId) {
+
+            lazyListState.scrollToItem(messageId)
+
+        }
+    } else {
+
+        // Scroll to the last item when the items list changes
+        LaunchedEffect(messageList.size, keyboardHeight) {
+            if (messageList.isNotEmpty()) {
+                coroutineScope.launch {
+
+                    lazyListState.scrollToItem(messageList.lastIndex)
+                }
             }
         }
     }
 
+
+
+
     LazyColumn(
-        state = listState,
+        state = lazyListState,
         modifier = Modifier
             .padding(innerPadding)
             .padding(horizontal = 16.dp)
@@ -329,7 +348,7 @@ private fun SubMessageItem(
                     style = MaterialTheme.typography.labelSmall
                 )
 
-                if (message.icons=="Edited"){
+                if (message.icons == "Edited") {
                     Spacer(modifier = Modifier.width(5.dp))
                     FaIcon(
                         faIcon = FaIcons.PencilAlt,

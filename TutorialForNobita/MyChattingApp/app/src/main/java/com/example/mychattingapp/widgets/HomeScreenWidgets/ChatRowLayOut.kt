@@ -46,6 +46,14 @@ fun ChatRow(
     contactName: String,
     recentMessage: String,
     messageSentTime: String,
+    icon: @Composable () -> Unit = {
+        Icon(
+            imageVector = Icons.Default.AccountCircle,
+            contentDescription = null,
+            tint = Color.LightGray,
+            modifier = Modifier.size(50.dp)
+        )
+    },
     onClick: () -> Unit = {},
     onLongPress: () -> Unit = {},
     messageCounterEnabled: Boolean = true,
@@ -66,12 +74,7 @@ fun ChatRow(
                 onClick()
             }
     ) {
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = null,
-            tint = Color.LightGray,
-            modifier = Modifier.size(50.dp)
-        )
+        icon()
         Spacer(modifier = Modifier.width(20.dp))
 
         Row(

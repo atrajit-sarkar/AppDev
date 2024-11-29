@@ -5,9 +5,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.Screens.ChatScreen
 import com.example.mychattingapp.Screens.Contacts
@@ -76,6 +78,24 @@ fun Navigation(viewModel: ChatAppViewModel) {
                         viewModel = viewModel
                     )
                 }
+        }
+
+        composable(
+            route = "chat_screen/{chatId}/{messageId}",
+            arguments = listOf(
+                navArgument("chatId") { type = NavType.IntType },
+                navArgument("messageId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getInt("chatId") ?: 0
+            val messageId = backStackEntry.arguments?.getInt("messageId") ?: 0
+
+            ChatScreen(
+                chatId = chatId,
+                viewModel = viewModel,
+                navController = navController,
+                messageId = messageId
+            )
         }
         composable("settings_screen") {
             SettingsScreen(navController = navController)

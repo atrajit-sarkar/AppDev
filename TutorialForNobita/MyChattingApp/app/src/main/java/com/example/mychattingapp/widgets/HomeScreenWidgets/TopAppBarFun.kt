@@ -76,5 +76,3 @@ fun TopBarFun(
     )
 }
 
-@Target(AnnotationTarget.TYPE)
-annotation class composable

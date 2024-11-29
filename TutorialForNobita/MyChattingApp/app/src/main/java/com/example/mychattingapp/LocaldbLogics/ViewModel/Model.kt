@@ -7,6 +7,8 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mychattingapp.ChatsData.ChannelsData
+import com.example.mychattingapp.ChatsData.UsersStatusData
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
 import com.example.mychattingapp.LocaldbLogics.Repositories.ChatRepository
@@ -22,9 +24,48 @@ class ChatAppViewModel @Inject constructor(
     private val chatrepository: ChatRepository, private val userRepository: UserRepository
 ) : ViewModel() {
 
+    // UpdateScreen sortedStatusList and sorted Channel list.......
+    private val _sortedStatusList = MutableStateFlow<List<UsersStatusData>>(emptyList())
+    val sortedStatusList: StateFlow<List<UsersStatusData>> = _sortedStatusList
+
+    private val _sortedChannelList = MutableStateFlow<List<ChannelsData>>(emptyList())
+    val sortedChannelList: StateFlow<List<ChannelsData>> = _sortedChannelList
+
+    fun updateSortedStatusList(newList: List<UsersStatusData>) {
+        _sortedStatusList.value = newList
+    }
+
+    fun updateSortedChannelList(newList: List<ChannelsData>) {
+        _sortedChannelList.value = newList
+    }
+
+    // isUpdateScreenSearchBarActive........
+    private val _isUpdateScreenSearchBarActive = MutableStateFlow(false)
+    val isUpdateScreenSearchBarActive: StateFlow<Boolean> = _isUpdateScreenSearchBarActive
+
+    fun changeUpdateScreenSearchBarActiveState(value: Boolean) {
+        _isUpdateScreenSearchBarActive.value = value
+    }
+
+    //isUpdateScreenSearchBarFocused........
+    private val _isUpdateScreenSearchBarFocused = MutableStateFlow(false)
+    val isUpdateScreenSearchBarFocused: StateFlow<Boolean> = _isUpdateScreenSearchBarFocused
+
+    fun changeUpdateScreenSearchBarFocusedState(value: Boolean) {
+        _isUpdateScreenSearchBarFocused.value = value
+    }
+
+
 
     val allChats = chatrepository.getAllMessages().asLiveData()
     val allUsers = userRepository.getAllUsers().asLiveData()
+
+    private val _homeScreenSearchBarActiveState = MutableStateFlow(false)
+    val homeScreenSearchBarActiveState: StateFlow<Boolean> = _homeScreenSearchBarActiveState
+
+    fun changeHomeScreenSearchBarActiveState(value: Boolean) {
+        _homeScreenSearchBarActiveState.value = value
+    }
 
     private val _selectedMessage = MutableStateFlow<Message?>(null)
     val selectedMessage: StateFlow<Message?> = _selectedMessage
@@ -85,9 +126,11 @@ class ChatAppViewModel @Inject constructor(
     }
 
     //............................................
+
     // Expose LazyListState using MutableStateFlow
     private val _lazyListState = MutableStateFlow(LazyListState())
     val lazyListState: StateFlow<LazyListState> = _lazyListState
+
     //............................................
 
 
@@ -149,5 +192,6 @@ class ChatAppViewModel @Inject constructor(
             userRepository.deleteAllUser()
         }
     }
+
 
 }

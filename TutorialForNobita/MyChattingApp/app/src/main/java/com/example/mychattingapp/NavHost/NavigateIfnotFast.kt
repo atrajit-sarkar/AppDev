@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 
 private const val debounceTime = 600L
-private const val delayTime = 100L
+private const val delayTime = 300L
 private var lastClickTime = 0L
 
 private val handler = Handler(Looper.getMainLooper())

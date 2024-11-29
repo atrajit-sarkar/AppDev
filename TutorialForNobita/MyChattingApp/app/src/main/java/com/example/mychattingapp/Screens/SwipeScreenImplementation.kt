@@ -40,7 +40,9 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +55,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mychattingapp.ChatsData.ChannelsData
+import com.example.mychattingapp.ChatsData.UsersStatusData
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.NavHost.navigateIfNotFast
 import com.example.mychattingapp.ui.theme.MyChattingAppTheme
@@ -66,7 +70,7 @@ fun SwipeableScreensWithTabs(
     viewModel: ChatAppViewModel,
     navController: NavController
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 4 })
     val coroutineScope = rememberCoroutineScope()
     val topScreenBar = remember {
         mutableStateOf<@Composable () -> Unit>({})
@@ -102,10 +106,10 @@ fun SwipeableScreensWithTabs(
                 AnimatedVisibility(
                     visible = smallActionIconVisible.value,
                     enter = slideInVertically(
-                        initialOffsetY = { fullHeight -> 2*fullHeight } // Starts from below the screen
+                        initialOffsetY = { fullHeight -> 2 * fullHeight } // Starts from below the screen
                     ),
                     exit = slideOutVertically(
-                        targetOffsetY = { fullHeight -> 2*fullHeight } // Exits to below the screen
+                        targetOffsetY = { fullHeight -> 2 * fullHeight } // Exits to below the screen
                     )
                 ) {
 
@@ -139,7 +143,8 @@ fun SwipeableScreensWithTabs(
         },
         bottomBar = {
             androidx.compose.material3.BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.background
+                containerColor = MaterialTheme.colorScheme.background,
+                modifier = Modifier.height(103.dp)
             ) {
                 TabRowFunction(
                     pagerState,
@@ -165,9 +170,23 @@ fun SwipeableScreensWithTabs(
         ) { page ->
             when (page) {
                 0 -> HomeScreen(navController = navController, viewModel = viewModel)
-                1 -> UpdateScreen()
+                1 -> UpdateScreen(viewModel, navController)
                 2 -> CommunityScreen()
+                3 -> CallScreen()
             }
+        }
+    }
+
+}
+
+@Composable
+fun CallScreen() {
+    MyChattingAppTheme {
+        Column(modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text("Hello Calls")
         }
     }
 
@@ -188,6 +207,9 @@ private fun TabRowFunction(
     bigAction: MutableState<() -> Unit>,
     smallActionIconVisible: MutableState<Boolean>
 ) {
+    val homeScreenSearchBarActiveState by viewModel.homeScreenSearchBarActiveState.collectAsState()
+
+
     TabRow(
         divider = {},
         containerColor = Color.Transparent,
@@ -219,7 +241,10 @@ private fun TabRowFunction(
             0 -> {
                 smallActionIconVisible.value = true
                 topScreenBar.value = {
-                    HomeTopAppBar(navController, showDropDown, viewModel)
+                    if (!homeScreenSearchBarActiveState) {
+
+                        HomeTopAppBar(navController, showDropDown, viewModel)
+                    }
                 }
                 bigActionIcon.value = {
                     FaIcon(faIcon = FaIcons.SnapchatGhost)
@@ -241,7 +266,7 @@ private fun TabRowFunction(
 
             1 -> {
                 smallActionIconVisible.value = true
-                topScreenBar.value = { SettingScreenTopAppBar() }
+                topScreenBar.value = { UpdateScreenTopAppBar(viewModel) }
                 bigActionIcon.value = {
                     FaIcon(
                         faIcon = FaIcons.Camera
@@ -319,12 +344,15 @@ private fun LoadTabsFunction(
 
 @Composable
 fun CommunityScreen() {
-    BasicText(
-        text = "Screen Three",
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    )
+    MyChattingAppTheme {
+        Column(modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text("Hello Community")
+        }
+    }
+
 }
 
 data class TabData(

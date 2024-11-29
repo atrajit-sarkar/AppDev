@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.gongobongoquiz"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.gongobongoquiz"
