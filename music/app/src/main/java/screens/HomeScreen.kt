@@ -78,13 +78,13 @@ fun HomeScreen() {
                 },
 
                 )
-                Card(modifier = Modifier.padding(16.dp).fillMaxWidth(),colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
+                Card(modifier = Modifier.padding(16.dp).fillMaxWidth().clickable { },colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
                 Text(fontSize =30.sp, text = " Playlists")
             }
-                Card(modifier = Modifier.padding(16.dp).fillMaxWidth(),colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
+                Card(modifier = Modifier.padding(16.dp).fillMaxWidth().clickable { },colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
                 Text(fontSize =30.sp, text = " Artists")
             }
-                Card(modifier = Modifier.padding(16.dp).fillMaxWidth(),colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
+                Card(modifier = Modifier.padding(16.dp).fillMaxWidth().clickable { },colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
                 Text(fontSize =30.sp, text = " Albums")
             }
                 HorizontalDivider()
@@ -92,7 +92,8 @@ fun HomeScreen() {
                     Text(fontSize = 15.sp, text = "All Songs")
                 }
                 Box(modifier = Modifier.padding(16.dp)){
-                    
+
+
                 }
 
             }
