@@ -1,4 +1,4 @@
-package com.example.mychattingapp.Utils
+package com.example.mychattingapp.Utils.DateUtils
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
