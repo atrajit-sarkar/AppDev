@@ -217,6 +217,10 @@ fun SettingsScreen(
                         SignOutDialog(
                             showDialog = showDialog.value,
                             onConfirm = {
+                                val updateSignOut = mapOf(
+                                    "activeStatus" to "SignedOut \uD83D\uDE34"
+                                )
+                                viewModel.updateUserItem(viewModel.currentUserId.value, updateSignOut)
                                 FirebaseAuth.getInstance().signOut()
                                 navigateIfNotFast {
                                     navController.navigate("login_screen") {
@@ -259,7 +263,7 @@ fun SettingsScreen(
                             iconSolid = FaIcons.Lock,
                             fontSize = (10 + fontSize.floatValue * 25).toInt().sp,
                             cardOnClick = {
-                                navigateIfNotFast{
+                                navigateIfNotFast {
                                     navController.navigate("devices_screen")
                                 }
                             }

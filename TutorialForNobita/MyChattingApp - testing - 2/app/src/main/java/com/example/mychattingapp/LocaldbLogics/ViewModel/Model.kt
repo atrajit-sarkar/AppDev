@@ -275,15 +275,36 @@ class ChatAppViewModel @Inject constructor(
     )
     val currentUser = _currentUser.asStateFlow()
 
-    // CurrentUserId
-    private val _currentUserId = MutableStateFlow<String>(
-        FirebaseAuth.getInstance().currentUser?.uid.toString()
-    )
+
+    // Firebase Auth instance
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    // MutableStateFlow for the current user ID
+    private val _currentUserId = MutableStateFlow<String?>(null) // Allow null values initially
     val currentUserId = _currentUserId.asStateFlow()
 
-    // LiveData to observe in the UI
-    private val _userDocIdList = MutableLiveData<List<String>>(listOf(currentUserId.value))
+    // LiveData for observing user doc ID list
+    private val _userDocIdList = MutableLiveData<List<String>>()
     val userDocIdListGlobal: LiveData<List<String>> get() = _userDocIdList
+
+    init {
+        // Listen to Firebase Auth state changes
+        firebaseAuth.addAuthStateListener { auth ->
+            val newUserId = auth.currentUser?.uid
+            _currentUserId.value = newUserId
+            updateUserDocIdList(newUserId)
+        }
+    }
+
+    // Function to update the user document ID list
+    private fun updateUserDocIdList(newUserId: String?) {
+        // Ensure the list contains a non-null value or handle empty state
+        _userDocIdList.value = if (newUserId != null) {
+            listOf(newUserId)
+        } else {
+            emptyList()
+        }
+    }
 
 
     //Variable to store authetication issues
@@ -306,8 +327,6 @@ class ChatAppViewModel @Inject constructor(
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
                             onloginsuccess()
-                            _userDocIdList.value =
-                                _userDocIdList.value?.plus(auth.currentUser?.uid.toString())
                             _currentUser.value = auth.currentUser?.email.toString().split("@")[0]
 
 
@@ -367,8 +386,6 @@ class ChatAppViewModel @Inject constructor(
                                     }
                             }
                             onSignUpSuccess() // Call success callback
-                            _userDocIdList.value =
-                                _userDocIdList.value?.plus(auth.currentUser?.uid.toString())
                         } else {
                             onSignUpFail() // Handle sign-up failure
                             _authError.value = task.exception?.message.toString()

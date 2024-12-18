@@ -170,6 +170,11 @@ fun LoginSignupScreen(
                                     email = username,
                                     password = password,
                                     onloginsuccess = {
+                                        val updateSignOut = mapOf(
+                                            "activeStatus" to "*LoggedIn & Online \uD83E\uDD29"
+                                        )
+                                        viewModel.updateUserItem(viewModel.currentUserId.value, updateSignOut)
+
                                         navigateIfNotFast {
 
                                             if (auth.currentUser?.isEmailVerified == true) {
@@ -205,26 +210,7 @@ fun LoginSignupScreen(
                                     email = username,
                                     password = password,
                                     onSignUpSuccess = {
-//                                        navigateIfNotFast() {
-//                                            if (auth.currentUser?.isEmailVerified == true) {
-//                                                // Allow access to the app
-//                                                navController.navigate("home_screen") {
-//                                                    popUpTo("login_screen") {
-//                                                        inclusive = true
-//                                                    }
-//                                                }
-//                                            } else {
-//                                                // Prompt user to verify email with a toast
-//                                                Toast.makeText(
-//                                                    navController.context,
-//                                                    "Please verify your email",
-//                                                    Toast.LENGTH_SHORT
-//                                                ).show()
-//
-//                                            }
-//
-//
-//                                        }
+
                                         viewModel.changeLoadingState(false)
                                     },
                                     onSignUpFail = {

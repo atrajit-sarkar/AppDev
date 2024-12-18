@@ -58,6 +58,7 @@ fun ChatRow(
     onLongPress: () -> Unit = {},
     messageCounterEnabled: Boolean = true,
     messageCounterNumber: String = "1",
+    messageDeliveryIcon: @Composable () -> Unit = {}
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -97,15 +98,15 @@ fun ChatRow(
                     maxLines = 1
                 )
 
-                Row(horizontalArrangement = Arrangement.SpaceAround) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     if (recentMessage != "") {
 
-                        Icon(
-                            imageVector = Icons.Default.Done,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.LightGray
-                        )
+                        messageDeliveryIcon()
+                        Spacer(modifier = Modifier.width(7.dp))
+
                         Text(
                             text = recentMessage,
                             style = MaterialTheme.typography.labelLarge,
@@ -126,7 +127,7 @@ fun ChatRow(
                 if (recentMessage != "") {
                     Text(
                         text = messageSentTime,
-                        color = if(messageCounterNumber=="0") Color.LightGray else Color.Green,
+                        color = if (messageCounterNumber == "0") Color.LightGray else Color.Green,
                         fontSize = 12.sp
                     )
                     if (messageCounterNumber != "0") {

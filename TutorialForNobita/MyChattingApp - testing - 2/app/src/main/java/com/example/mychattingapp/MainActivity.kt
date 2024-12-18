@@ -1,24 +1,19 @@
 package com.example.mychattingapp
 
 
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.mychattingapp.LocaldbLogics.ViewModel.ChatAppViewModel
 import com.example.mychattingapp.NavHost.Navigation
 import com.example.mychattingapp.Optimization.checkAndRequestBatteryOptimization
-import com.example.mychattingapp.notification.createNotificationChannel
+import com.example.mychattingapp.Utils.Network.NetworkAwareComponent
 import com.example.mychattingapp.ui.theme.MyChattingAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -27,7 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
 
 val auth: FirebaseAuth = Firebase.auth
 
@@ -40,6 +34,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             MyChattingAppTheme {
+                NetworkAwareComponent(viewModel = viewModel, context = this)
                 checkAndRequestBatteryOptimization(this)
 //                val intent = Intent(this, MyFirebaseMessagingService::class.java)
 //                startForegroundService(intent)
@@ -110,6 +105,12 @@ class AppLifecycleObserver(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onAppKilled() {
+        val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+        val updates = mapOf(
+            "activeStatus" to "lastseen at $currentTime"
+        )
+        viewModel.updateUserItem(auth.currentUser?.uid, updates)
         // App is being killed
         println("App is being destroyed")
         Log.d("MainActivity", "onAppKilled: App is killed")

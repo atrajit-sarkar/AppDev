@@ -53,7 +53,8 @@ fun ChatInputField(
 ) {
     var debounceJob: Job? by remember { mutableStateOf(null) }
     val coroutineScope = rememberCoroutineScope()
-    val currentUser = viewModel.filterUser(viewModel.currentUserId.value).collectAsState()
+    val currentUser =
+        viewModel.filterUser(viewModel.currentUserId.value.toString()).collectAsState()
 
     BottomAppBar(
         containerColor = Color.Transparent,
@@ -70,9 +71,9 @@ fun ChatInputField(
                 val updateTyping = mapOf(
                     "activeStatus" to "Online,Typing...."
                 )
-                if (currentUser.value[0].activeStatus != "Online,Typing....") {
-                    viewModel.updateUserItem(viewModel.currentUserId.value, updateTyping)
-                }
+
+                viewModel.updateUserItem(viewModel.currentUserId.value, updateTyping)
+
 
                 // Cancel the previous job if it exists
                 debounceJob?.cancel()

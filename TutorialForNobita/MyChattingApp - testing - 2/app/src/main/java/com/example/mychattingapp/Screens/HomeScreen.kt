@@ -68,6 +68,7 @@ import com.example.mychattingapp.widgets.HomeScreenWidgets.ChatRow
 import com.example.mychattingapp.widgets.HomeScreenWidgets.DeleteUserDialogue
 import com.example.mychattingapp.widgets.HomeScreenWidgets.DropDownMenuHomeScreen
 import com.example.mychattingapp.widgets.HomeScreenWidgets.TopBarFun
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.guru.fontawesomecomposelib.FaIcon
@@ -362,8 +363,10 @@ fun HomeScreen(
                             selectedContact.value = contact
                             showDeleteUserDialoge.value = true
 
-                        }
-                    )
+                        },
+                    ) {
+                        MessageIconsRendering(messages, auth)
+                    }
 
                 }
             }
@@ -411,6 +414,45 @@ fun HomeScreen(
     }
 
 
+}
+
+@Composable
+private fun MessageIconsRendering(
+    messages: List<Message>,
+    auth: FirebaseAuth
+) {
+    if (messages.last().sender == auth.currentUser?.uid) {
+        if (messages.last().icons == "singleTick") {
+            Spacer(modifier = Modifier.width(5.dp))
+            FaIcon(
+                faIcon = FaIcons.Check,
+                tint = Color.LightGray,
+                size = 15.dp,
+            )
+        } else if (messages.last().icons == "clock") {
+            Spacer(modifier = Modifier.width(5.dp))
+            FaIcon(
+                faIcon = FaIcons.Clock,
+                tint = Color.LightGray,
+                size = 15.dp,
+            )
+
+        } else if (messages.last().icons == "doubleTickGreen") {
+            Spacer(modifier = Modifier.width(5.dp))
+            FaIcon(
+                faIcon = FaIcons.CheckDouble,
+                tint = Color.Green,
+                size = 15.dp,
+            )
+        } else if (messages.last().icons == "doubleTick") {
+            Spacer(modifier = Modifier.width(5.dp))
+            FaIcon(
+                faIcon = FaIcons.CheckDouble,
+                tint = Color.LightGray,
+                size = 15.dp,
+            )
+        }
+    }
 }
 
 @Composable
