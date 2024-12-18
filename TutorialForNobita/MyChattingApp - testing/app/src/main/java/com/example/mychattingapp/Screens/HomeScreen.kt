@@ -1,5 +1,6 @@
 package com.example.mychattingapp.Screens
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -74,6 +75,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.system.exitProcess
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 //@Preview
@@ -89,7 +91,7 @@ fun HomeScreen(
     val selectedContact = remember { mutableStateOf<User?>(null) }
 
     // ChatAppViewModel Variables.......
-    val userList by viewModel.userList.observeAsState(emptyList())
+    val userList by viewModel.userList.collectAsState(emptyList())
     val messageList by viewModel.allChats.collectAsState()
     val searchinputtext = remember { mutableStateOf("") }
     val isFocused by viewModel.homeScreenSearchBarActiveState.collectAsState()
@@ -117,11 +119,6 @@ fun HomeScreen(
             messageShortedList.add(chat)
         }
     }
-//    val activity = LocalContext.current as? Activity
-//
-//    BackHandler {
-//        activity?.moveTaskToBack(true) // Minimize the app
-//    }
 
 
     MyChattingAppTheme {
@@ -247,7 +244,7 @@ fun HomeScreen(
                         messageSentTime = contact.messageSentTime,
                         onClick = {
                             navigateIfNotFast {
-                                navController.navigate("chat_screen/${contact.id}")
+                                navController.navigate("chat_screen/${contact.uid}")
 
                             }
                         },
@@ -276,7 +273,11 @@ fun HomeScreen(
                             .fillParentMaxWidth()
                             .clickable {
                                 navigateIfNotFast {
-                                    navController.navigate("chat_screen/${message.chatId}/${message.id}")
+                                    if (message.sender == viewModel.currentUserId.value) {
+                                        navController.navigate("chat_screen/${message.receiver}")
+                                    }else if (message.receiver == viewModel.currentUserId.value){
+                                        navController.navigate("chat_screen/${message.sender}")
+                                    }
                                 }
 
 
@@ -308,7 +309,6 @@ fun HomeScreen(
 
                         }
 
-
                     }
 
                 }
@@ -321,6 +321,12 @@ fun HomeScreen(
                 items(userList) { contact ->
                     val messages by viewModel.filterTargetMessages(uid = contact.uid)
                         .collectAsState(emptyList())
+                    var messageCounter = 0
+                    for (message in messages) {
+                        if (message.sender == contact.uid && message.icons != "doubleTickGreen") {
+                            messageCounter++
+                        }
+                    }
                     if (messages.isNotEmpty()) {
                         val date = inputFormat.parse(messages.last().timestamp)
 
@@ -332,11 +338,12 @@ fun HomeScreen(
                         contact.messageSentTime = ""
                     }
 //                    viewModel.updateUser(user = contact)
-
+                    val currentUserUid by viewModel.currentUserId.collectAsState()
                     ChatRow(
-                        contactName = contact.userName,
+                        contactName = if (contact.uid == currentUserUid) "(You) ${contact.userName}" else contact.userName,
                         recentMessage = contact.recentMessage,
                         messageSentTime = contact.messageSentTime,
+                        messageCounterNumber = messageCounter.toString(),
                         onClick = {
                             navigateIfNotFast {
                                 navController.navigate("chat_screen/${contact.uid}")

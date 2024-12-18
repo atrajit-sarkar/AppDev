@@ -36,6 +36,7 @@ firebaseAuth = "23.1.0"
 firebaseMessaging = "24.1.0"
 material3Lint = "1.4.0-alpha04"
 uiVersion = "<latest_version>"
+generativeai = "0.9.0"
 
 [libraries]
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
@@ -82,6 +83,7 @@ firebase-inappmessaging-display = { group = "com.google.firebase", name = "fireb
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 androidx-material3-lint = { group = "androidx.compose.material3", name = "material3-lint", version.ref = "material3Lint" }
+generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
 
 
 

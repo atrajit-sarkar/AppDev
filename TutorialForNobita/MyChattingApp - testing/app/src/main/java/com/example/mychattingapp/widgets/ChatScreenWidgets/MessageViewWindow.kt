@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -141,6 +143,7 @@ fun MessageViewWindow(
     val coroutineScope = rememberCoroutineScope()
 
     val lazyListState by viewModel.lazyListState.collectAsState()
+    val chatLoading by viewModel.chatLoading.collectAsState()
 
 
     // Scroll to the specific message on first load
@@ -187,26 +190,37 @@ fun MessageViewWindow(
         contentPadding = PaddingValues(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        groupedMessages.forEach { (date, messagesForDate) ->
-            if (date != null) {
-                item {
-                    DateHeader(date = date)
+        if (!chatLoading) {
+            groupedMessages.forEach { (date, messagesForDate) ->
+                if (date != null) {
+                    item {
+                        DateHeader(date = date)
+                    }
+
+                    items(messagesForDate) { message ->
+                        MessageItem(
+                            message = message,
+                            viewModel = viewModel,
+                            onMessageClick = { viewModel.selectAMessage(message) },
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+
+                    }
                 }
 
-                items(messagesForDate) { message ->
-                    MessageItem(
-                        message = message,
-                        viewModel = viewModel,
-                        onMessageClick = { viewModel.selectAMessage(message) },
-                    )
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-
-                }
             }
+        } else {
+            item {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(16.dp),
 
-
+                    )
+            }
         }
     }
 }
@@ -337,8 +351,10 @@ private fun SubMessageItem(
     } else {
         isOwnMessage.value = true
     }
+    val messageSentStatus by viewModel.messageSentStatus.collectAsState()
+    val isAppMinimized by viewModel.isAppMinimized.collectAsState()
 
-    Column(horizontalAlignment = if(isOwnMessage.value) Alignment.End else Alignment.Start) {
+    Column(horizontalAlignment = if (isOwnMessage.value) Alignment.End else Alignment.Start) {
 
 
 //        Text(message.sender)
@@ -408,7 +424,7 @@ private fun SubMessageItem(
                 val date = inputFormat.parse(message.timestamp)
 
                 Text(
-                    outputFormat.format(date!!),
+                    text = outputFormat.format(date!!),
                     modifier = Modifier
                         .align(Alignment.Bottom)
                         .widthIn(min = 30.dp),
@@ -419,12 +435,58 @@ private fun SubMessageItem(
                     Spacer(modifier = Modifier.width(5.dp))
                     FaIcon(
                         faIcon = FaIcons.PencilAlt,
-                        tint = MaterialTheme.colorScheme.onBackground,
+                        tint = Color.LightGray,
                         size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
                     )
                 }
+                if (isOwnMessage.value) {
+                    if (message.icons == "singleTick") {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        FaIcon(
+                            faIcon = FaIcons.Check,
+                            tint = Color.LightGray,
+                            size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    } else if (message.icons == "clock") {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        FaIcon(
+                            faIcon = FaIcons.Clock,
+                            tint = Color.LightGray,
+                            size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
+                        )
+
+                    } else if (message.icons == "doubleTickGreen") {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        FaIcon(
+                            faIcon = FaIcons.CheckDouble,
+                            tint = Color.Green,
+                            size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    } else if (message.icons == "doubleTick") {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        FaIcon(
+                            faIcon = FaIcons.CheckDouble,
+                            tint = Color.LightGray,
+                            size = 15.dp, modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    }
+                }
             }
         }
+        if (messageSentStatus && isOwnMessage.value && message.icons != "doubleTickGreen" && message.icons != "singleTick" && message.icons != "doubleTick") {
+            val update = mapOf(
+                "icons" to "singleTick"
+            )
+            viewModel.updateMessageItem(message.messageId, update)
+            viewModel.changeMessageSentStatus(false)
+        }
+        if (!isOwnMessage.value && message.icons != "doubleTickGreen" && !isAppMinimized) {
+            val update = mapOf(
+                "icons" to "doubleTickGreen"
+            )
+            viewModel.updateMessageItem(message.messageId, update)
+        }
+
 
         // Reaction Card (Without Animation) - Always visible when there's a reaction
         if (message.reaction.isNotEmpty() && !selectedReaction.value) {

@@ -1,6 +1,7 @@
 package com.example.mychattingapp.LocaldbLogics.ViewModel
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.mychattingapp.ChatsData.ChannelsData
 import com.example.mychattingapp.ChatsData.UsersStatusData
@@ -21,9 +23,14 @@ import com.example.mychattingapp.FireBaseLogics.FireBseSetings.FirestoreHelper
 import com.example.mychattingapp.FireBaseLogics.addUserToFirestore
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.Message
 import com.example.mychattingapp.LocaldbLogics.DAO.Entities.User
+import com.example.mychattingapp.LocaldbLogics.DAO.Entities.UserDocId
 import com.example.mychattingapp.LocaldbLogics.Repositories.ChatRepository
+import com.example.mychattingapp.LocaldbLogics.Repositories.UserDocIdRepo
 import com.example.mychattingapp.LocaldbLogics.Repositories.UserRepository
 import com.example.mychattingapp.MainActivity
+import com.example.mychattingapp.Utils.DateUtils.convertToUserTimeZone
+import com.example.mychattingapp.notification.sendChatNotification
+import com.google.ai.client.generativeai.type.content
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Query
@@ -40,13 +47,36 @@ import javax.inject.Inject
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 
+@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class ChatAppViewModel @Inject constructor(
     private val chatrepository: ChatRepository,
     private val userRepository: UserRepository,
+    private val userDocIdRepo: UserDocIdRepo,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+
+    // Observe userDocIdRepo to get updated data whenever the local database changes
+    val userDocIdsLiveData = userDocIdRepo.getAllUserDocIds().asLiveData()
+
+    // Function to add userDocId to the database
+    fun addUserDocId(userDocId: UserDocId) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userDocIdRepo.insertUserDocId(userDocId)
+        }
+    }
+
+    // Function to remove userDocId from the database
+    fun deleteUserDocId(userdocid: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userDocIdRepo.deleteUserDocId(userdocid)
+        }
+    }
 
     // UpdateScreen sortedStatusList and sorted Channel list.......
     private val _sortedStatusList = MutableStateFlow<List<UsersStatusData>>(emptyList())
@@ -236,8 +266,8 @@ class ChatAppViewModel @Inject constructor(
     }
 
     // StateFlow to hold the list of users
-    private val _userList = MutableLiveData<List<User>>(emptyList())
-    val userList = _userList as LiveData<List<User>> // Expose it as immutable
+    private val _userList = MutableStateFlow<List<User>>(emptyList())
+    val userList = _userList as StateFlow<List<User>> // Expose it as immutable
 
     // Create a variable to hold a string that can be called in any composable
     private val _currentUser = MutableStateFlow<String>(
@@ -250,6 +280,11 @@ class ChatAppViewModel @Inject constructor(
         FirebaseAuth.getInstance().currentUser?.uid.toString()
     )
     val currentUserId = _currentUserId.asStateFlow()
+
+    // LiveData to observe in the UI
+    private val _userDocIdList = MutableLiveData<List<String>>(listOf(currentUserId.value))
+    val userDocIdListGlobal: LiveData<List<String>> get() = _userDocIdList
+
 
     //Variable to store authetication issues
     private val _authError = MutableStateFlow<String>("")
@@ -271,6 +306,8 @@ class ChatAppViewModel @Inject constructor(
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
                             onloginsuccess()
+                            _userDocIdList.value =
+                                _userDocIdList.value?.plus(auth.currentUser?.uid.toString())
                             _currentUser.value = auth.currentUser?.email.toString().split("@")[0]
 
 
@@ -289,92 +326,155 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    fun creatUserWithEmailAndPassword(
+    fun createUserWithEmailAndPassword(
         email: String,
         password: String,
         onSignUpSuccess: () -> Unit,
-        onSignUpFail: () -> Unit
+        onSignUpFail: () -> Unit,
+        onVerificationSent: () -> Unit
     ) {
         viewModelScope.launch {
             try {
-
                 auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            onSignUpSuccess()
-                            _currentUser.value = auth.currentUser?.email.toString().split("@")[0]
-                            auth.currentUser?.let { it1 ->
-                                User(
-                                    uid = it1.uid,
-                                    userName = email.split("@")[0],
-                                    password = password,
-                                    messageCounter = "",
-                                    messageSentTime = "",
-                                    recentMessage = ""
-                                )
-                            }?.let { it2 ->
-                                addUserToFirestore(
-                                    it2
-                                )
-                            }
-                        } else {
-                            onSignUpFail()
-                            _authError.value = it.exception?.message.toString()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val user = auth.currentUser
+                            if (user != null) {
+                                user.sendEmailVerification()
+                                    .addOnCompleteListener { verificationTask ->
+                                        if (verificationTask.isSuccessful) {
+                                            onVerificationSent() // Notify verification email is sent
+                                            _currentUser.value =
+                                                user.email.toString()
+                                                    .split("@")[0] // Update current user state
 
+                                            // Add user to Firestore
+                                            val newUser = User(
+                                                uid = user.uid,
+                                                userName = email.split("@")[0],
+                                                password = password,
+                                                messageCounter = "0",
+                                                messageSentTime = "",
+                                                recentMessage = "",
+                                                activeStatus = ""
+                                            )
+                                            addUserToFirestore(newUser)
+                                        } else {
+                                            onSignUpFail() // Handle failure to send verification email
+                                            _authError.value =
+                                                verificationTask.exception?.message.toString()
+                                        }
+                                    }
+                            }
+                            onSignUpSuccess() // Call success callback
+                            _userDocIdList.value =
+                                _userDocIdList.value?.plus(auth.currentUser?.uid.toString())
+                        } else {
+                            onSignUpFail() // Handle sign-up failure
+                            _authError.value = task.exception?.message.toString()
                         }
                     }
             } catch (e: Exception) {
-                // Log or handle the error
-                Log.d("", "singinwithemailandpassword: ")
+                Log.d("Error", "Error during sign-up: ${e.message}")
             }
-
         }
     }
+
 
     //Create a contactLoading variable
     private val _contactLoading = MutableStateFlow(false)
     val contactLoading = _contactLoading.asStateFlow()
 
-    init {
-        fetchUsersInRealTime()
+    // Create a list of userDocId:String and a function to add a function to add a userDocId to the list
+    private val _userDocId = MutableStateFlow<List<String>>(emptyList())
+    val userDocId = _userDocId.asStateFlow()
 
+
+//    fun addUserDocId() {
+//        // Create a new list by adding the new item to the existing list
+//        for (userId in userDocIds.value!!) {
+//            _userDocId.value += userId.userdocid
+//        }
+//    }
+
+    private var firestoreListener: ListenerRegistration? = null
+
+    init {
+        // Observe changes in userDocIdsLiveData
+        userDocIdsLiveData.observeForever { userDocIds ->
+            Log.d("ViewModelUserDocIds", ": $userDocIds")
+            val userDocIdList = userDocIds.map { it.userdocid }
+            _userDocIdList.value = _userDocIdList.value?.plus(userDocIdList)
+
+            // Reinitialize Firestore listener with the updated list
+            userDocIdListGlobal.value?.let { fetchUsersInRealTime(it) }
+        }
     }
 
-    //    Fetch users in real-time
-    private fun fetchUsersInRealTime() {
+    private fun fetchUsersInRealTime(userDocIdList: List<String>) {
+        // Remove the old listener
+        firestoreListener?.remove()
+
+        // Do nothing if the list is empty
+        if (userDocIdList.isEmpty()) {
+            _userList.value = emptyList()
+            return
+        }
+
         val db = FirestoreHelper.instance
         _contactLoading.value = true
+
         try {
-            db.collection("users")
+            firestoreListener = db.collection("users")
+                .whereIn("uid", userDocIdList)
                 .addSnapshotListener { snapshots, error ->
                     if (error != null) {
                         Log.e("ChatAppViewModel", "Error fetching users: ${error.message}")
+                        _contactLoading.value = false
                         return@addSnapshotListener
                     }
 
-                    // Map Firestore documents to User objects
-                    val users = snapshots?.documents?.map {
-                        User(
-                            uid = it.getString("uid") ?: "",
-                            userName = it.getString("userName") ?: "",
-                            password = it.getString("password") ?: "",
-                            messageSentTime = it.getString("messageSentTime") ?: "",
-                            recentMessage = it.getString("recentMessage") ?: "",
-                            messageCounter = it.getString("messageCounter") ?: ""
-                        )
-                    } ?: emptyList()
+                    if (snapshots != null) {
+                        val currentUsers = _userList.value?.toMutableList() ?: mutableListOf()
+                        val userMap = currentUsers.associateBy { it.uid }.toMutableMap()
 
-                    // Update the LiveData
-                    _userList.value = users
+                        for (docChange in snapshots.documentChanges) {
+                            val doc = docChange.document
+                            val user = User(
+                                uid = doc.getString("uid") ?: "",
+                                userName = doc.getString("userName") ?: "",
+                                password = doc.getString("password") ?: "",
+                                messageSentTime = doc.getString("messageSentTime") ?: "",
+                                recentMessage = doc.getString("recentMessage") ?: "",
+                                messageCounter = doc.getString("messageCounter") ?: "",
+                                activeStatus = doc.getString("activeStatus") ?: "",
+                                userDocId = doc.getString("userDocId") ?: ""
+                            )
+
+                            when (docChange.type) {
+                                DocumentChange.Type.ADDED -> {
+                                    userMap[user.uid] = user
+                                }
+                                DocumentChange.Type.MODIFIED -> {
+                                    userMap[user.uid] = user
+                                }
+                                DocumentChange.Type.REMOVED -> {
+                                    userMap.remove(user.uid)
+                                }
+                            }
+                        }
+
+                        _userList.value = userMap.values.sortedBy { it.userName }
+                    }
                 }
-
         } catch (e: Exception) {
-            Log.d("ChatAppViewModel", "Error fetching users: ${e.message}")
+            Log.e("ChatAppViewModel", "Error fetching users: ${e.message}", e)
         } finally {
             _contactLoading.value = false
         }
-
     }
+
+
 
     private val _allChats = MutableStateFlow<List<Message>>(emptyList())
     val allChats: StateFlow<List<Message>> = _allChats
@@ -383,63 +483,85 @@ class ChatAppViewModel @Inject constructor(
     val chatLoading = _chatLoading.asStateFlow()
 //    var lastVisible: DocumentSnapshot? = null
 
+    // Create a variable to store messageCounter value in Int
+    private val _messageCounter = MutableStateFlow(0)
+    val messageCounter = _messageCounter.asStateFlow()
+
     init {
-        fetchChatsInRealTime()
+        // Automatically observe the LiveData and update Firestore query when the data changes
+        userDocIdsLiveData.observeForever { userDocIds ->
+            // Extract the userdocid values and update LiveData
+            Log.d("ViewModelUserDocIds", ": $userDocIds")
+            val userDocIdList = userDocIds.map { it.userdocid }
+            _userDocIdList.value = _userDocIdList.value?.plus(userDocIdList)
+
+            // Perform Firestore query with the updated list
+            userDocIdListGlobal.value?.let { fetchChatsInRealTime(it) }
+        }
+    }
+
+    //Create a variable to store a uid tye string
+    private val _uidForNotification = MutableStateFlow<String>("")
+    val uidForNotification = _uidForNotification.asStateFlow()
+
+    // Function to change the value of the uid variable
+    fun changeUid(value: String) {
+        _uidForNotification.value = value
     }
 
     //    Fetch chats in real-time
     // Function to fetch chats in real-time and append new data in order
-    private fun fetchChatsInRealTime() {
+    private fun fetchChatsInRealTime(userDocIdList: List<String>) {
         val db = FirestoreHelper.instance
+        val userId = currentUserId.value ?: return
         _chatLoading.value = true // Indicate that chats are loading
 
         try {
-            db.collection("messages")
-                .orderBy("timestamp", Query.Direction.ASCENDING) // Order by timestamp
-                .addSnapshotListener { snapshots, error ->
-                    if (error != null) {
-                        Log.e("ChatAppViewModel", "Error fetching messages: ${error.message}")
-                        _chatLoading.value = false
-                        return@addSnapshotListener
-                    }
+            // Query 1: Messages where the current user is the receiver
+            val receiverQuery =
+                db.collection("messages")
+                    .whereEqualTo("receiver", userId)
+                    .whereIn("sender", userDocIdList)
 
-                    if (snapshots != null) {
-                        val currentChats = _allChats.value?.toMutableList() ?: mutableListOf()
-                        val chatMap = currentChats.associateBy { it.messageId }.toMutableMap() // Use a map for efficient updates
 
-                        for (docChange in snapshots.documentChanges) {
-                            val doc = docChange.document
-                            val message = Message(
-                                id = doc.getLong("id")?.toInt() ?: 0,
-                                chatId = doc.getLong("chatId")?.toInt() ?: 0,
-                                sender = doc.getString("sender") ?: "",
-                                receiver = doc.getString("receiver") ?: "",
-                                text = doc.getString("text") ?: "",
-                                timestamp = doc.getString("timestamp") ?: "",
-                                reaction = doc.getString("reaction") ?: "",
-                                icons = doc.getString("icons") ?: "",
-                                messageId = doc.id // Use document ID for unique messageId
-                            )
+            // Query 2: Messages where the current user is the sender
+            val senderQuery = db.collection("messages")
+                .whereEqualTo("sender", userId)
+                .whereIn("receiver", userDocIdList)
 
-                            when (docChange.type) {
-                                DocumentChange.Type.ADDED -> {
-                                    chatMap[message.messageId] = message // Add new message
-                                }
+            val combinedChats = mutableMapOf<String, Message>()
 
-                                DocumentChange.Type.MODIFIED -> {
-                                    chatMap[message.messageId] = message // Update existing message
-                                }
-
-                                DocumentChange.Type.REMOVED -> {
-                                    chatMap.remove(message.messageId) // Remove the message
-                                }
-                            }
-                        }
-
-                        // Update the LiveData or StateFlow with the new list of messages
-                        _allChats.value = chatMap.values.sortedBy { it.timestamp } // Sort by timestamp for consistency
-                    }
+            // Listen for receiver query
+            receiverQuery?.addSnapshotListener { receiverSnapshots, error ->
+                if (error != null) {
+                    Log.e("ChatAppViewModel", "Error fetching messages: ${error.message}")
+                    _chatLoading.value = false
+                    return@addSnapshotListener
                 }
+
+                receiverSnapshots?.let {
+                    for (doc in it.documentChanges) {
+                        processDocumentChange(doc, combinedChats)
+                    }
+                    updateChatList(combinedChats)
+                }
+            }
+
+            // Listen for sender query
+            senderQuery.addSnapshotListener { senderSnapshots, error ->
+                if (error != null) {
+                    Log.e("ChatAppViewModel", "Error fetching messages: ${error.message}")
+                    _chatLoading.value = false
+                    return@addSnapshotListener
+                }
+
+                senderSnapshots?.let {
+                    for (doc in it.documentChanges) {
+                        processDocumentChange(doc, combinedChats)
+                    }
+                    updateChatList(combinedChats)
+                }
+            }
         } catch (e: Exception) {
             Log.e("ChatAppViewModel", "Error fetching messages: ${e.message}", e)
         } finally {
@@ -447,6 +569,78 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
+    // Helper function to process document changes
+    private fun processDocumentChange(
+        docChange: DocumentChange,
+        combinedChats: MutableMap<String, Message>
+    ) {
+        val doc = docChange.document
+        val message = Message(
+            id = doc.getLong("id")?.toInt() ?: 0,
+            chatId = doc.getLong("chatId")?.toInt() ?: 0,
+            sender = doc.getString("sender") ?: "",
+            receiver = doc.getString("receiver") ?: "",
+            text = doc.getString("text") ?: "",
+            timestamp = convertToUserTimeZone(doc.getString("timestamp") ?: ""),
+            reaction = doc.getString("reaction") ?: "",
+            icons = doc.getString("icons") ?: "",
+            messageId = doc.id
+        )
+
+        // Notification logic for the current user
+        if (message.receiver == currentUserId.value && message.icons == "singleTick") {
+            if (uidForNotification.value != "" && uidForNotification.value == message.sender) {
+                filterTargetUser(message.sender)?.let {
+                    sendChatNotification(
+                        context = context,
+                        message = message.text,
+                        title = it.userName
+                    )
+                }
+            } else if (uidForNotification.value == "") {
+                filterTargetUser(message.sender)?.let {
+                    sendChatNotification(
+                        context = context,
+                        message = message.text,
+                        title = it.userName
+                    )
+                }
+            }
+        }
+
+        // Update message status for "doubleTick"
+        if (message.receiver == currentUserId.value && message.icons != "doubleTick" && message.icons != "doubleTickGreen") {
+            val update = mapOf("icons" to "doubleTick")
+            updateMessageItem(message.messageId, update)
+        }
+
+        // Handle Live Document Changes..............
+        when (docChange.type) {
+            DocumentChange.Type.ADDED -> combinedChats[message.messageId] = message
+            DocumentChange.Type.MODIFIED -> combinedChats[message.messageId] = message
+            DocumentChange.Type.REMOVED -> combinedChats.remove(message.messageId)
+        }
+    }
+
+    // Helper function to update the chat list
+    private fun updateChatList(combinedChats: MutableMap<String, Message>) {
+        _allChats.value =
+            combinedChats.values.sortedBy { it.timestamp } // Sort messages by timestamp
+    }
+
+
+    // Create variable to store a user
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user
+
+    //    create a filterfunction to filter user given a uid and store it into the variable
+    fun filterUser(uid: String): StateFlow<List<User>> {
+        return _userList.map { users ->
+            users.filter {
+                it.uid == uid
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    }
 
 
     //filter from userList a user that's uid matches given a uid.... Create a function....
@@ -558,6 +752,69 @@ class ChatAppViewModel @Inject constructor(
 //                Log.e("Firestore", "Error updating document: ${e.message}. Retrying...", e)
 //                retryUpdate(messageId, updateMap) // Implement retry logic here
             }
+    }
+
+    //Message Delivery Status....
+    private val _messageSentStatus = MutableStateFlow<Boolean>(false)
+    val messageSentStatus: StateFlow<Boolean> = _messageSentStatus
+    fun changeMessageSentStatus(value: Boolean) {
+        _messageSentStatus.value = value
+    }
+
+    //Update UserItem in dataBase (We will update this to directly query using documentId implementation to optimize the function).............
+    fun updateUserItem(uid: String?, updateMap: Map<String, Any>?) {
+        // Validate inputs
+        if (uid.isNullOrEmpty()) {
+            Log.e("Firestore", "Invalid uid: Cannot be null or empty")
+            return
+        }
+        if (updateMap.isNullOrEmpty()) {
+            Log.e("Firestore", "Invalid updateMap: Cannot be null or empty")
+            return
+        }
+
+        // Query to find the document with matching uid field
+        db.collection("users")
+            .whereEqualTo("uid", uid)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    Log.e("Firestore", "No user found with the specified uid")
+                    return@addOnSuccessListener
+                }
+
+                // Assume there's only one matching document
+                for (document in querySnapshot.documents) {
+                    db.collection("users")
+                        .document(document.id)
+                        .update(updateMap)
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "Document updated successfully!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("Firestore", "Error updating document: ${e.message}", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error finding user: ${e.message}", e)
+            }
+    }
+
+    // Create a variable isAppMinimized to store boolean type
+    private val _isAppMinimized = MutableStateFlow(false)
+    val isAppMinimized: StateFlow<Boolean> = _isAppMinimized
+
+    // Create a function to change the value of isAppMinimized
+    fun changeAppMinimizedState(value: Boolean) {
+        _isAppMinimized.value = value
+    }
+
+    // Temporary uid
+    private val _tempUid = MutableStateFlow("")
+    val tempUid: StateFlow<String> = _tempUid
+    fun changeTempUid(value: String) {
+        _tempUid.value = value
     }
 
 

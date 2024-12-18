@@ -1,5 +1,6 @@
 package com.example.mychattingapp.widgets.ChatScreenWidgets
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -32,6 +33,7 @@ import com.guru.fontawesomecomposelib.FaIcons
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun RowScope.Send_MicButtonTransition(
@@ -51,16 +53,23 @@ fun RowScope.Send_MicButtonTransition(
         textFiledValue.value = selectedMessages[0].text
         viewModel.isEditingInitiated(false)
         isEditingGoingOn.value = true
-    }else{
+    }
+    if (selectedMessages.isEmpty()) {
         isEditingGoingOn.value = false
     }
+
+    val messageSentStatus by viewModel.messageSentStatus.collectAsState()
     IconButton(
         colors = IconButtonDefaults.iconButtonColors(Color.Green),
         onClick = {
             val currentTime = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss", // Format to include full date and time
                 Locale.getDefault()
-            ).format(Date())
+            ).apply {
+                timeZone = TimeZone.getTimeZone("GMT") // Set time zone to UTC
+            }.format(Date())
+
+            Log.d("currentTime", "Send_MicButtonTransition: $currentTime")
 
 
             if (textFiledValue.value.isNotBlank()) {
@@ -73,27 +82,25 @@ fun RowScope.Send_MicButtonTransition(
                             timestamp = currentTime,
                             chatId = -1,
                             receiver = uid,
-                            reaction = ""
+                            reaction = "",
+                            icons = "clock"
                         )
                     }?.let {
                         addMessageToFirestore(
-                            it
+                            it,
+                            viewModel = viewModel
                         )
                     } // Add message at the top
                 } else {
                     val updates = mapOf(
                         "text" to textFiledValue.value,
-                        "timestamp" to currentTime,
                         "icons" to "Edited"
                     )
                     viewModel.updateMessageItem(selectedMessages[0].messageId, updates)
-                    isEditingGoingOn.value = false
                     viewModel.clearSelectedMessages()
                 }
 
                 textFiledValue.value = "" // Clear the input
-                // Scroll to the newest message
-//                                Log.d("message", "ChatScreen: $messageList")
 
             }
 

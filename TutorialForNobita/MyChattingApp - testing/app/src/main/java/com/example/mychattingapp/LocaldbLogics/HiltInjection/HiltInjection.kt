@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.mychattingapp.LocaldbLogics.DAO.RoomDbConnection.AppDatabase
 import com.example.mychattingapp.LocaldbLogics.DAO.daoMethods.MessageDao
 import com.example.mychattingapp.LocaldbLogics.DAO.daoMethods.UserDao
+import com.example.mychattingapp.LocaldbLogics.DAO.daoMethods.UserDocIdDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,12 +15,28 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-val MIGRATION_7_8 = object : Migration(7, 8) {
+val MIGRATION_9_10 = object : Migration(9, 10) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        // Add or modify tables and columns here
-        database.execSQL("ALTER TABLE messages ADD COLUMN messageId TEXT NOT NULL DEFAULT ''")
+        // Add the `userDocId` column with a default value to the `user` table
+//        database.execSQL("ALTER TABLE user ADD COLUMN userDocId TEXT NOT NULL DEFAULT ''")
+        database.execSQL(
+            """
+        ALTER TABLE user ADD COLUMN userDocId TEXT NOT NULL DEFAULT ''
+    """
+        )
+
+        database.execSQL(
+            """
+        CREATE TABLE IF NOT EXISTS user_doc_id (
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            userdocid TEXT NOT NULL
+        )
+    """
+        )
+
     }
 }
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -31,7 +48,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_7_8)
+        ).addMigrations(MIGRATION_9_10)
             .build()
     }
 
@@ -44,4 +61,10 @@ object DatabaseModule {
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()
     }
+
+    @Provides
+    fun provideUserDocIdDao(database: AppDatabase): UserDocIdDao {
+        return database.userDocIdDao()
+    }
+
 }
